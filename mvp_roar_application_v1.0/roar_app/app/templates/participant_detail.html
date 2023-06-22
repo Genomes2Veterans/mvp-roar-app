@@ -1,0 +1,1290 @@
+{% extends "layout.html" %}
+
+{% block title %}
+
+Participant Detail
+
+{% endblock %}
+{% block header %}
+
+<div style="font-size: 24px;">
+		
+	<b><u>PARTICIPANT DETAIL:</u> {{ pt.roarid | safe }} </b>
+
+<br>
+
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+<!-- Add custom style to this page only -->
+
+<style>
+	
+.table {
+	margin-bottom: 0rem;
+}
+
+.table th {
+	padding: 0.25rem;
+}
+
+.table td {
+	padding: 0.25rem;
+}
+
+</style>
+
+<!-- define jinja variables -->
+
+<!-- iterate through ptLog data and get task information from long form data -->
+			
+{% set cr = [] %}
+{% set rl = [] %}
+{% set ped = [] %}
+{% set blsurv = [] %}
+{% set blspec = [] %}
+{% set blldl = [] %}
+{% set delresletter = [] %}
+{% set report = [] %}
+{% set intervention = [] %}
+{% set interventiondoc = [] %}
+{% set eosspec = [] %}
+{% set eosldl = [] %}
+{% set eossurv = [] %}
+{% set incentive = [] %}
+
+
+		{% for task in ptLog %}
+			{% if task.taskid == 10 %}
+				{{ cr.append(task) or "" | safe }}
+			{% endif %}
+			{% if task.taskid == 11 %}
+				{{ rl.append(task) or "" | safe }}
+			{% endif %}
+			{% if task.taskid == 25 %}
+				{{ ped.append(task) or "" | safe }}
+			{% endif %}
+			{% if task.taskid == 13 and task.outcome == "Survey completed" %}
+				{{ blsurv.append(task) or "" | safe }}
+			{% endif %}
+			{% if task.taskid == 14 and task.outcome == "Baseline specimen received" %}
+				{{ blspec.append(task) or "" | safe }}
+			{% endif %}
+			{% if task.taskid == 15 and task.outcome == "Baseline LDL recorded" %}
+				{{ blldl.append(task) or "" | safe }}
+			{% endif %}
+			{% if task.taskid == 27 %}
+				{{ delresletter.append(task) or "" | safe }}
+			{% endif %}
+			{% if task.taskid == 17 and task.outcome == "Genetic report, received and recorded" %}
+				{{ report.append(task) or "" | safe }}
+			{% endif %}
+			{% if task.taskid == 18 and task.outcome == "Return of results delivery completed" %}
+				{{ intervention.append(task) or "" | safe }}
+			{% endif %}
+			{% if task.taskid == 26 and task.outcome == "Return of results documentation completed" %}
+				{{ interventiondoc.append(task) or "" | safe }}
+			{% endif %}
+			{% if task.taskid == 14 and task.outcome == "End-of-study specimen received" %}
+				{{ eosspec.append(task) or "" | safe }}
+			{% endif %}
+			{% if task.taskid == 15 and task.outcome == "End-of-study LDL recorded" %}
+				{{ eosldl.append(task) or "" | safe }}
+			{% endif %}
+			{% if task.taskid == 19 and task.outcome == "Survey completed" %}
+				{{ eossurv.append(task) or "" | safe }}
+			{% endif %}
+			{% if task.taskid == 20 and task.outcome == "Incentive paid" %}
+				{{ incentive.append(task) or "" | safe }}
+			{% endif %}
+		{% endfor %}
+
+<!-- Page body -->
+
+<br>
+
+<div class="row">
+		
+	<div class="col-lg">
+		
+		<div class="shadow p-3 mb-5 bg-white rounded">
+			
+			<!-- Demographic information section, patient tables -->
+
+			<b><u>DEMOGRAPHIC INFORMATION</u></b>
+			<br>
+			<br>
+			<table class="table table-condensed table-hover" id="demTable">
+				<tbody>
+					<tr>
+						<th style="width: 35%">Name:</th>
+						<td>{{ pt.firstname | safe }} {{ pt.lastname | safe }}</td>
+					</tr>
+					<tr>
+						<th>MVP ROAR ID:</th>
+						<td> {{ pt.roarid | safe }} </td>
+					</tr>
+					<tr>
+						<th>MVP Core ID:</th>
+						<td> {{ pt.mvpcoreid | safe }} </td>
+					</tr>
+					<tr>
+						<th>DOB / Age:</th>
+						<td>  {{ pt.dob | safe }} / {{ ptAge | safe }} </td>
+					</tr>
+					<tr>
+						<th>Last 4 SSN:</th>
+						<td> {{ pt.ssn | safe }} </td>
+					</tr>
+					<tr>
+						<th>Sex:</th>
+						{% if pt.sexmale == True %}
+						<td> MALE </td>
+						{% else %}
+						<td> FEMALE </td>
+						{% endif %}						
+					</tr>
+					<tr>
+						<th>Race / Ethnicity:</th>
+						<td> {{ pt.race | safe }} / {{ pt.ethnicity | safe }} </td>
+					</tr>
+					<tr>
+						<th>Participant Group:</th>
+						{% if pt.pilotparticipant == True %}
+						<td> PILOT PARTICIPANT </td>
+						{% else %}
+						<td> RCT PARTICIPANT </td>
+						{% endif %}		
+					</tr>
+					<tr>
+						<th>Consent Status:</th>
+						{% if pt.consenteddate == None and pt.deceased == 1 %}
+						<td> NOT CONSENTED AND DECEASED </td>
+						{% elif pt.consenteddate == None and pt.eligible == 0 %}
+						<td> NOT CONSENTED AND NOT ELIGIBLE </td>
+						{% elif pt.consenteddate == None and pt.losttofup == 1 %}
+						<td> NOT CONSENTED AND LOST TO FOLLOW UP </td>
+						{% elif pt.declineddate != None and pt.eligible == 1 %}
+						<td> DECLINED / {{ pt.declineddate }}</td>
+						{% elif pt.consenteddate == None and pt.eligible == 1 %}
+						<td> NOT CONSENTED </td>
+						{% elif pt.consenteddate != None and pt.deceased == 1 %}
+						<td> CONSENTED / {{ pt.consenteddate }} AND DECEASED / {{ pt.deceaseddate }} </td>
+						{% elif pt.consenteddate != None and pt.withdrawn == 1 %}
+						<td> CONSENTED / {{ pt.consenteddate }} AND WITHDRAWN / {{ pt.withdrawndate }} </td>
+						{% elif pt.consenteddate != None and pt.eligible == 1 %}
+						<td> CONSENTED / {{ pt.consenteddate }}</td>
+						{% else %}
+						<td> PENDING </td>
+						{% endif %}		
+					</tr>
+					<tr>
+						<th>Randomization Status:</th>
+						{% if pt.randomizationstatus == None %}
+						<td> NOT RANDOMIZED </td>
+						{% else %}
+						<td> {{ pt.randomizationstatus }} / {{ pt.randomizationdate }} </td>
+						{% endif %}		
+					</tr>
+					<tr>
+						<th>6-Month Enrollment Date:</th>
+						{% if pt.randomizationstatus == None %}
+						<td> PENDING RANDOMIZATION </td>
+						{% else %}
+						<td> {{ pt.randomizationdate + relativedelta(months=+6) }} </td>
+						{% endif %}		
+					</tr>
+				</tbody>
+			</table>
+		
+		</div>
+		
+	</div>
+
+	<div class="col-lg">
+	
+		<div class="shadow p-3 mb-5 bg-white rounded">
+		
+			<b><u>CONTACT INFORMATION</u></b>
+			<br>
+			<br>
+			<table class="table table-condensed table-hover" id="contactTable">
+				<tbody>
+					<tr>
+						<th style="width: 40%">Active Phone Numbers:</th>
+						
+						<td>{% if ptPhone|length > 0 %}
+								{% for ptp in ptPhone %}
+									{% if ptp.primaryphone == 1 %}
+										{{ ptp.patientphone | safe }} (Primary)
+									{% else %}
+										<br> {{ ptp.patientphone | safe }} 
+									{% endif %}
+								{% endfor %}
+							{% else %}
+								PENDING
+							{% endif %}
+						</td>
+
+					</tr>
+					<tr>
+						<th>Email Address:</th>
+						<td>{% if ptEmail|length > 0 %}
+								{% for pte in ptEmail %}
+									{{ pte.patientemail | safe }}<br> 
+								{% endfor %}
+							{% else %}
+								PENDING
+							{% endif %}
+						</td>
+					</tr>
+					<tr>
+						<th>Postal Address:</th>
+						<td> 
+							{{ pt.street1 | safe }} {% if pt.street2 == None or pt.street2 == '' %}{% else %} <br> {{ pt.street2 | safe }} {% endif %} {% if pt.street3 == None or pt.street3 == '' %}{% else %} <br> {{ pt.street3 | safe }} {% endif %}
+							<br> {{ pt.city | safe }}, {{ pt.state | safe }} {{ pt.zipcode | safe }}
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<br>
+			
+			<form action="/record_contact" method="post">
+				<button type="submit" class="btn btn-primary btn-block" name="recordContactID" value="{{ pt.roarid | safe}}" {% if pt.deceased == 1 or cr == [] %} disabled {% else %}{% endif %}>
+					<b>Record Participant Action, Contact, or Note</b>
+				</button>	
+			</form>
+			
+			<br>	
+		
+			<form action="/update_contact" method="post">
+				<button type="submit" class="btn btn-primary btn-block" name="updateContactID" value="{{ pt.roarid | safe}}" {% if pt.deceased == 1 or cr == [] %} disabled {% else %}{% endif %}>
+					<b>Update Participant Contact, Provider, or Study Status Information</b>
+				</button>	
+			</form>	
+			
+		</div>
+		
+	</div>
+	
+	<div class="col-lg">
+		
+		<div class="shadow p-3 mb-5 bg-white rounded">
+
+			<b><u>HEALTH INFORMATION</u></b>
+			<br>
+			<br>
+			<table class="table table-condensed table-hover" id="phiTable">
+				<tbody>
+					<tr>
+						<th style="width: 40%">VA Station:</th>
+						<td>
+							{% if ptVA == None %}
+								PENDING
+							{% else %}
+								{{ ptVA.sta3nname | safe }}
+							{% endif %}
+						</td>
+					</tr>
+					
+					<tr>
+						<th>Providers:</th>
+						<td> 
+							{% if ptProv == [] %}
+								PENDING
+							{% else %}
+							{% for prov in ptProv %}
+								{{ prov.provider }} ({% if prov.vaprovider == True %} VA {% else %} Non-VA {% endif %}) <br>
+							{% endfor %}
+							{% endif %}
+						</td>
+					</tr>
+	
+					
+					{% for LDL in ptLDL %}
+					
+					{% if LDL.LDLtype == "maximum LDL" %}
+					<tr>
+						<th>Maximum LDL-C:</th>
+						<td>
+							{{ LDL.value | safe }} {{ LDL.unit | safe }} / {{ LDL.valuedate | safe }}
+						</td>	
+					</tr>
+					{% endif %}
+					
+					{% if LDL.LDLtype == "most recent LDL" %}
+					<tr>
+						<th>Most Recent LDL-C:</th>
+						<td>
+							{{ LDL.value | safe }} {{ LDL.unit | safe }} / {{ LDL.valuedate | safe }}
+						</td>	
+					</tr>	
+					{% endif %}	
+					
+					{% if LDL.LDLtype == "baseline LDL" %}							
+					<tr>
+						<th>Baseline LDL-C:</th>
+						<td>
+							{{ LDL.value | safe }} {{ LDL.unit | safe }} / {{ LDL.valuedate | safe }}
+						</td>	
+					</tr>		
+					{% endif %}
+					
+					{% if LDL.LDLtype == "end-of-study LDL" %}
+					<tr>
+						<th>End-of-Study LDL-C:</th>
+						<td>
+							{{ LDL.value | safe }} {{ LDL.unit | safe }} / {{ LDL.valuedate | safe }}
+						</td>	
+					</tr>
+					{% endif %}
+					
+					{% endfor %}	
+					
+					
+					<tr>
+						<th>cDot / rsID / axID:</th>
+						{% if ptGen == None %}
+						<td> PENDING </td>
+						{% else %}
+						<td> {{ ptGen.cdot | safe }} / {{ ptGen.rsID | safe }} / {{ ptGen.axID | safe }} </td>
+						{% endif %}						
+					</tr>
+					
+					<tr>
+						<th>Molecular Diagnosis FH:</th>
+						{% if ptGen.molecdiagnosis == 1 %}
+						<td> Yes </td>
+						{% elif ptGen.molecdiagnosis == 0 %}
+						<td> No </td>
+						{% else %}
+						<td> PENDING </td>
+						{% endif %}
+					</tr>
+					
+					<tr>
+						<th>Confirmation testing:</th>
+						{% if ptGen.confirmtesting == 1 and ptGen.confirmresult == 0 %}
+						<td> Not Confirmed / {{ ptGen.confirmsource | safe }} / {{ ptGen.confirmtestingdate | safe }} </td>
+						{% elif ptGen.confirmtesting == 1 and ptGen.confirmresult == 1 %}
+						<td> Confirmed / {{ ptGen.confirmsource | safe }} / {{ ptGen.confirmtestingdate | safe }} </td>
+						{% else %}
+						<td> PENDING </td>
+						{% endif %}
+					</tr>	
+						
+				</tbody>
+				
+			</table>
+
+		</div>
+		
+	</div>
+
+</div>
+
+
+<div class="row">
+		
+	<div class="col-lg">
+	
+		<div class="shadow p-3 mb-5 bg-white rounded">
+
+			<b><u>MVP-ROAR STUDY DATA AND WORKFLOW</u></b>
+
+			<br>
+			<br>
+			<table class="table table-condensed table-hover" id="workflowTable">
+				<tbody>
+						
+					<tr>
+						<th style="width: 30%"></th>
+						<td><b>Task status</b></td>
+						<td><b>Task due</b></td>
+						<td><b>Date completed</b></td>
+						<td><b>Complete</b></td>
+					</tr>
+						
+					<tr>
+						<th class="align-middle">MVP Core Release:</th>
+
+						{% if pt.corereleasedate == None %}
+						<td class="align-middle">Pending</td>
+						<td class="align-middle">Pending</td>
+						<td class="align-middle">Pending</td>
+						{% else %}
+						<td class="align-middle">Completed</td>						
+						<td class="align-middle">{{ pt.corereleasedate | safe }}</td>
+						<td class="align-middle">{{ pt.corereleasedate | safe }}</td>
+						{% endif %}
+						<td class="align-middle">
+							<button type="submit" class="btn btn-primary" name="coreReleaseID" value="{{ pt.roarid | safe }}" {% if pt.corereleasedate != None %} disabled {% else %}{% endif %}>
+							<b>Complete</b>
+						</button></td>
+					</tr>
+			
+
+					<tr>
+						<th class="align-middle">Chart Review:</th>
+						
+						{% if cr == [] %}
+						<td class="align-middle">Pending</td>
+						<td class="align-middle">{{ pt.corereleasedate | safe }}</td>
+						<td class="align-middle">Pending</td>
+						{% else %}
+						<td class="align-middle">Completed</td>
+						<td class="align-middle">{{ pt.corereleasedate | safe }}</td>
+						<td class="align-middle">{{ cr[0][2] }}</td>
+						{% endif %}
+						<form action="/chart_review" method="post">
+						<td class="align-middle">
+							<button type="submit" class="btn btn-primary" name="chartReviewID" value="{{ pt.roarid | safe}}" {% if cr != [] %} disabled {% else %}{% endif %}>
+								<b>Complete</b>
+							</button>
+						</td>
+						</form>
+
+					</tr>
+						
+					<tr>
+						<th class="align-middle">Recruitment Letter Mailed:</th>
+						
+						{% if rl == [] %}
+						<td class="align-middle">Pending</td>
+						{% if cr == [] %}
+							<td class="align-middle">Pending</td>						
+						{% else %}
+							<td class="align-middle">{{ cr[0][2] }}</td>
+						{% endif %}
+						<td class="align-middle">Pending</td>
+						{% else %}
+						<td class="align-middle">Completed</td>
+						<td class="align-middle">{{ cr[0][2] }}</td>
+						<td class="align-middle">{{ rl[0][2] }}</td>
+						{% endif %}
+						<td class="align-middle">
+							<button type="submit" class="btn btn-primary" name="letterMailedID" value="{{ pt.roarid | safe}}" onclick="recordrecruitmailing(this)" {% if cr == [] or rl != [] %} disabled {% else %}{% endif %}>
+								<b>Complete</b>
+							</button>
+						</td>
+					</tr>
+					
+					<form action="/record_recruitment_letter" method="post" id="recruitmentLetterData">
+					<tr id="recletterinput" style="display: none;">
+						<th class="align-middle">Record Recruitment Mailing:</th>
+						<td class="align-middle">Date sent:</td>
+						<td class="align-middle"><input autocomplete="off" autofocus class="form-control" id="recletterdate" name="recletterdate" type="date" min="1970-01-01" max="2024-01-01" required></td>
+						<td class="align-middle">
+							<textarea autocomplete="off" autofocus class="form-control" rows="0" id="rlnotes" name="rlnotes" placeholder="notes"></textarea>
+						</td>
+						<td class="align-middle">
+							<button type="submit" class="btn btn-success" name="recletterinputID" value="{{ pt.roarid | safe}}">
+								<b>Save Date</b>
+							</button>
+						</td>
+					</tr>
+					</form>
+
+
+					<tr>
+						<th class="align-middle">Consent:</th>
+
+						{% if pt.consenteddate == None %}
+						<td class="align-middle">Pending</td>
+						{% if rl == [] %}
+							<td class="align-middle">Pending</td>
+						{% else %}
+							<td class="align-middle">{{ rl[0][2] + timedelta(days=14) }}</td>
+						{% endif %}
+						<td class="align-middle">Pending</td>
+						{% else %}
+						<td class="align-middle">Completed</td>						
+						<td class="align-middle">{{ rl[0][2] + timedelta(days=14) }}</td>  
+						<td class="align-middle">{{ pt.consenteddate | safe }}</td>
+						{% endif %}
+						<form action="/record_consent" method="post">
+						<td class="align-middle">
+							<!--today() <= (rl[0][2] + timedelta(days=14)); condition for disabling consent entry - must wait 14 days from mailing of recruitment letter / per discussion w/ Morgan calls ON day 14-->
+							<button type="submit" class="btn btn-primary" name="consentDateID" value="{{ pt.roarid | safe }}" 
+							{% if pt.consenteddate != None or rl == [] or (today() <= (rl[0][2] + timedelta(days=13))) %} disabled {% else %}{% endif %}>
+							<b>Complete</b>
+						</button>
+						</td>
+						</form>
+					</tr>		
+
+					<tr>
+						<th class="align-middle">Pedigree Collected:</th>
+						
+						{% if ped == [] %}
+						<td class="align-middle">Pending</td>
+						{% if pt.consenteddate == None %}
+							<td class="align-middle">Pending</td>						
+						{% else %}
+							<td class="align-middle">{{ pt.consenteddate | safe }}</td>
+						{% endif %}
+						<td class="align-middle">Pending</td>
+						{% else %}
+						<td class="align-middle">Completed</td>
+						<td class="align-middle">{{ pt.consenteddate | safe }}</td>
+						<td class="align-middle">{{ ped[0][2] }}</td>
+						{% endif %}
+						<td class="align-middle">
+							<button type="submit" class="btn btn-primary" name="pedigreeID" value="{{ pt.roarid | safe}}" onclick="recordpedigree(this)" {% if pt.consenteddate == None or ped != [] %} disabled {% else %}{% endif %}>
+								<b>Complete</b>
+							</button>
+						</td>
+					</tr>
+					
+					<form action="/record_pedigree" method="post" id="pedigreeData">
+					<tr id="pedigreeinput" style="display: none;">
+						<th class="align-middle">Record Pedigree Date:</th>
+						<td class="align-middle">Date collected:</td>
+						<td class="align-middle"><input autocomplete="off" autofocus class="form-control" id="pedigreedate" name="pedigreedate" type="date" min="1970-01-01" max="2024-01-01" required></td>
+						<td class="align-middle">Mode:</td>
+						<td class="align-middle">
+							<select autocomplete="off" autofocus class="form-control" id="collectMode" name="collectMode" required>
+								<option value="" selected></option>
+								<option>Phone call</option>
+								<option>Video call</option>
+								<option>Other</option>
+							</select>
+						</td>
+						<td class="align-middle">Time Spent:</td>
+						<td class="align-middle"><input autocomplete="off" autofocus class="form-control" id="timeSpent" name="timeSpent" type="number" min="0" max="90" required></td>
+						<td class="align-middle">
+							<textarea autocomplete="off" autofocus class="form-control" rows="0" id="pednotes" name="pednotes" placeholder="notes"></textarea>
+						</td>
+						<td class="align-middle">
+							<button type="submit" class="btn btn-success" name="pedigreeinputID" value="{{ pt.roarid | safe}}">
+								<b>Save Date</b>
+							</button>
+						</td>
+					</tr>
+					</form>
+
+					<tr>
+						<th class="align-middle">Baseline Survey:</th>
+						
+						{% if blsurv == [] %}
+						<td class="align-middle">Pending</td>
+						{% if pt.consenteddate == None %}
+							<td class="align-middle">Pending</td>
+						{% else %}
+							<td class="align-middle">{{ pt.consenteddate | safe }}</td>
+						{% endif %}
+						<td class="align-middle">Pending</td>
+						{% else %}
+						<td class="align-middle">Completed</td>						
+						<td class="align-middle">{{ pt.consenteddate | safe }}</td>
+						<td class="align-middle">{{ blsurv[0][2] | safe }}</td>
+						{% endif %}
+						<form action="/baseline_survey" method="post">
+						<td class="align-middle">
+							<button type="submit" class="btn btn-primary" name="baselineSurveyID" value="{{ pt.roarid | safe}}" {% if pt.consenteddate == None or blsurv != [] %} disabled {% else %}{% endif %}>
+								<b>Complete</b>
+							</button>
+						</td>
+						</form>
+					</tr>
+			
+					<tr>
+						<th class="align-middle">Baseline Specimen:</th>
+						
+						{% if blspec == [] %}
+						<td class="align-middle">Pending</td>
+						{% if pt.consenteddate == None %}
+							<td class="align-middle">Pending</td>
+						{% else %}
+							<td class="align-middle">{{ pt.consenteddate | safe }}</td>
+						{% endif %}		
+						<td class="align-middle">Pending</td>
+						{% else %}
+						<td class="align-middle">Completed</td>						
+						<td class="align-middle">{{ pt.consenteddate | safe }}</td>
+						<td class="align-middle">{{ blspec[0][2] | safe }}</td>
+						{% endif %}
+						<td class="align-middle">
+							<button type="submit" class="btn btn-primary" name="baselineSpecimenID" value="{{ pt.roarid | safe}}" onclick="recordbaselinespecdate(this)" {% if pt.consenteddate == None or blspec != [] %} disabled {% else %}{% endif %}>
+								<b>Complete</b>
+							</button>
+						</td>
+					</tr>
+
+					<form action="/record_baseline_specimen" method="post" id="baselineSpecimenData">
+					<tr id="baselinespecinput" style="display: none;">
+						<th class="align-middle">Record baseline specimen collection:</th>
+						<td class="align-middle">Date received:</td>
+						<td class="align-middle"><input autocomplete="off" autofocus class="form-control" id="baselinespecdate" name="baselinespecdate" type="date" min="1970-01-01" max="2024-01-01" required></td>
+						<td class="align-middle">Genetic testing specimen type:</td>
+						<td class="align-middle">
+							<select autocomplete="off" autofocus class="form-control" id="blspecmode" name="blspecmode" required>
+							<option value="" selected></option>
+							<option>Saliva</option>
+							<option>Blood</option>
+						</select>
+						</td>
+						<td class="align-middle">
+							<textarea autocomplete="off" autofocus class="form-control" rows="0" id="blspecnotes" name="blspecnotes" placeholder="notes"></textarea>
+						</td>
+						<td class="align-middle">
+							<button type="submit" class="btn btn-success" name="baselinespecID" value="{{ pt.roarid | safe}}">
+								<b>Save Date</b>
+							</button>
+						</td>
+					</tr>
+					</form>
+
+	
+					<tr>
+						<th class="align-middle">Baseline LDL:</th>
+						
+						{% if blldl == [] %}
+						<td class="align-middle">Pending</td>
+						{% if pt.consenteddate == None %}
+							<td class="align-middle">Pending</td>
+						{% else %}
+							<td class="align-middle">{{ pt.consenteddate | safe }}</td>
+						{% endif %}		
+						<td class="align-middle">Pending</td>
+						{% else %}
+						<td class="align-middle">Completed</td>						
+						<td class="align-middle">{{ pt.consenteddate | safe }}</td>
+						<td class="align-middle">{{ blldl[0][2] | safe }}</td>
+						{% endif %}
+						<td class="align-middle">
+							<button type="submit" class="btn btn-primary" name="baselineLDLID" value="{{ pt.roarid | safe}}" onclick="recordbaselineLDL(this)" {% if pt.consenteddate == None or blldl != [] %} disabled {% else %}{% endif %}>
+								<b>Complete</b>
+							</button>
+						</td>
+					</tr>
+					
+					<form action="/record_baseline_LDL" method="post" id="baselineLDLData">
+					<tr id="baselineLDLinput" style="display: none;">
+						<th class="align-middle">Record baseline LDL:</th>
+						<td class="align-middle">LDL date:</td>
+						<td class="align-middle"><input autocomplete="off" autofocus class="form-control" id="baselineLDLdate" name="baselineLDLdate" type="date" min="1970-01-01" max="2024-01-01" placeholder="LDL date" required></td>
+						<td class="align-middle">
+							<select autocomplete="off" autofocus class="form-control" id="baselineLDLmode" name="baselineLDLmode" required>
+							<option value="" selected>LDL source</option>
+							<option>Study draw</option>
+							<option>JLV</option>
+						</select>
+						</td>
+						<td class="align-middle">
+						<input autocomplete="off" autofocus class="form-control" id="baselineLDL" name="baselineLDL" type="number" min="0" max="1000" placeholder="LDL value" required>
+						</td>
+						<td class="align-middle">
+							<textarea autocomplete="off" autofocus class="form-control" rows="0" id="blLDLnotes" name="blLDLnotes" placeholder="notes"></textarea>
+						</td>
+						<td class="align-middle">
+							<button type="submit" class="btn btn-success" name="baselineLDLID" value="{{ pt.roarid | safe}}">
+								<b>Save Date</b>
+							</button>
+						</td>
+					</tr>
+					</form>
+					
+					<tr>
+						<th class="align-middle">Randomization:</th>
+						
+						{% if pt.randomizationdate == None %}
+						<td class="align-middle">Pending</td>
+						{% if blsurv == [] or blspec == [] %}
+							<td class="align-middle">Pending</td>
+						{% else %}
+							<td class="align-middle">{{ max([blsurv[0][2], blspec[0][2]]) }}</td>
+						{% endif %}
+						<td class="align-middle">Pending</td>
+						{% else %}
+						<td class="align-middle">Completed</td>
+						<td class="align-middle">{{ max([blsurv[0][2], blspec[0][2]]) }}</td>
+						<td class="align-middle">{{ pt.randomizationdate }}</td>
+						{% endif %}
+						<form action="/randomization" method="post">
+						<td class="align-middle">
+							<button type="submit" class="btn btn-primary" name="randomizationID" value="{{ pt.roarid | safe}}" {% if pt.consenteddate == None or blsurv == [] or blspec == [] or blldl == [] or pt.randomizationdate != None %} disabled {% else %}{% endif %}>
+								<b>Complete</b>
+							</button>
+						</td>
+						</form>
+					</tr>
+
+					
+					{% if pt.randomizationstatus == "DELAYED" %}
+					<tr>
+						<th class="align-middle">Delayed results letter:</th>
+						
+						{% if delresletter == [] %}
+						<td class="align-middle">Pending</td>
+						<td class="align-middle">{{ pt.randomizationdate | safe }}</td>
+						<td class="align-middle">Pending</td>
+						{% else %}
+						<td class="align-middle">Completed</td>
+						<td class="align-middle">{{ pt.randomizationdate | safe }}</td>
+						<td class="align-middle">{{ delresletter[0][2] }}</td>
+						{% endif %}
+						<td class="align-middle">
+							<button type="submit" class="btn btn-primary" name="pedigreeID" value="{{ pt.roarid | safe}}" onclick="recorddelresletter(this)" {% if delresletter != [] %} disabled {% else %}{% endif %}>
+								<b>Complete</b>
+							</button>
+						</td>
+					</tr>
+					
+					<form action="/record_delresletter" method="post" id="delresletterData">
+					<tr id="delresletterinput" style="display: none;">
+						<th class="align-middle">Record Delayed Results Letter Date:</th>
+						<td class="align-middle">Date sent:</td>
+						<td class="align-middle"><input autocomplete="off" autofocus class="form-control" id="delresletterdate" name="delresletterdate" type="date" min="1970-01-01" max="2024-01-01" required></td>
+						<td class="align-middle">Time Spent:</td>
+						<td class="align-middle"><input autocomplete="off" autofocus class="form-control" id="timeSpent" name="timeSpent" type="number" min="0" max="90" required></td>
+						<td class="align-middle">
+							<textarea autocomplete="off" autofocus class="form-control" rows="0" id="delresletternotes" name="delresletternotes" placeholder="notes"></textarea>
+						</td>
+						<td class="align-middle">
+							<button type="submit" class="btn btn-success" name="delresletterinputID" value="{{ pt.roarid | safe}}">
+								<b>Save Date</b>
+							</button>
+						</td>
+					</tr>
+					</form>
+					{% else %}
+					{% endif %}
+						
+					<tr>
+						<th class="align-middle">Genetic Report:</th>
+						
+						<!-- task status -->
+						{% if report == [] %}
+						<td class="align-middle">Pending</td>
+						{% else %}
+						<td class="align-middle">Completed</td>
+						{% endif %}
+						<!-- task due -->
+						{% if pt.randomizationstatus == None %}
+						<td class="align-middle">Pending</td>
+						{% elif pt.randomizationstatus == "IMMEDIATE" %}
+						<td class="align-middle">{{ pt.randomizationdate }}</td>
+						{% else %}
+						<td class="align-middle">{{ pt.randomizationdate + relativedelta(months=+6) }}</td>
+						{% endif %}
+						<!-- date completed -->
+						{% if report == [] %}
+						<td class="align-middle">Pending</td>
+						{% else %}
+						<td class="align-middle">{{ report[0][2] }}</td>
+						{% endif %}	
+						<form action="/genetic_report" method="post">
+						<td class="align-middle">
+							<button type="submit" class="btn btn-primary" name="geneticReportID" value="{{ pt.roarid | safe}}" {% if pt.randomizationdate == None or report != [] or (pt.randomizationstatus == "DELAYED" and eossurv == []) %} disabled {% else %}{% endif %}>
+								<b>Complete</b>
+							</button>
+						</td>
+						</form>
+					</tr>
+						
+					<tr>
+						<th class="align-middle">Intervention:</th>
+						
+						<!-- task status -->
+						{% if intervention == [] %}
+						<td class="align-middle">Pending</td>
+						{% else %}
+						<td class="align-middle">Completed</td>
+						{% endif %}
+						<!-- task due -->
+						{% if report == [] %}
+						<td class="align-middle">Pending</td>
+						{% else %}
+						<td class="align-middle">{{ report[0][2] }}</td>
+						{% endif %}
+						<!-- date completed -->
+						{% if intervention == [] %}
+						<td class="align-middle">Pending</td>
+						{% else %}
+						<td class="align-middle">{{ intervention[0][2] }}</td>
+						{% endif %}	
+						<form action="/intervention" method="post">
+						<td class="align-middle">
+							<button type="submit" class="btn btn-primary" name="interventionID" value="{{ pt.roarid | safe}}" {% if pt.randomizationdate == None or intervention != [] or (pt.randomizationstatus == "DELAYED" and eossurv == [])%} disabled {% else %}{% endif %}>
+								<b>Complete</b>
+							</button>
+						</td>
+						</form>
+					</tr>
+
+					<tr>
+						<th class="align-middle">Intervention Documentation:</th>
+						
+						<!-- task status -->
+						{% if interventiondoc == [] %}
+						<td class="align-middle">Pending</td>
+						{% else %}
+						<td class="align-middle">Completed</td>
+						{% endif %}
+						<!-- task due -->
+						{% if intervention == [] %}
+						<td class="align-middle">Pending</td>
+						{% else %}
+						<td class="align-middle">{{ intervention[0][2] }}</td>
+						{% endif %}
+						<!-- date completed -->
+						{% if interventiondoc == [] %}
+						<td class="align-middle">Pending</td>
+						{% else %}
+						<td class="align-middle">{{ interventiondoc[0][2] }}</td>
+						{% endif %}	
+						<form action="/intervention_documentation" method="post">
+						<td class="align-middle">
+							<button type="submit" class="btn btn-primary" name="interventionID" value="{{ pt.roarid | safe}}" {% if intervention == [] or interventiondoc != [] %} disabled {% else %}{% endif %}>
+								<b>Complete</b>
+							</button>
+						</td>
+						</form>
+					</tr>		
+						
+					<tr>
+						<th class="align-middle">End-of-study Specimen:</th>
+						
+						{% if eosspec == [] %}
+						<td class="align-middle">Pending</td>
+						{% if pt.randomizationdate == None %}
+							<td class="align-middle">Pending</td>
+						{% else %}
+							<td class="align-middle">{{ pt.randomizationdate + relativedelta(months=6) }}</td>
+						{% endif %}		
+						<td class="align-middle">Pending</td>
+						{% else %}
+						<td class="align-middle">Completed</td>						
+						<td class="align-middle">{{ pt.randomizationdate  }}</td>
+						<td class="align-middle">{{ eosspec[0][2] | safe }}</td>
+						{% endif %}
+						<td class="align-middle">
+							<button type="submit" class="btn btn-primary" name="baselineSpecimenID" value="{{ pt.roarid | safe}}" onclick="recordeosspecdate(this)" {% if pt.randomizationdate == None or eosspec != [] %} disabled {% else %}{% endif %}>
+								<b>Complete</b>
+							</button>
+						</td>
+					</tr>
+					
+					<form action="/record_eos_specimen" method="post" id="eosSpecimenData">
+					<tr id="eosspecinput" style="display: none;">
+						<th class="align-middle">Record end-of-study specimen collection:</th>
+						<td class="align-middle">Date received:</td>
+						<td class="align-middle"><input autocomplete="off" autofocus class="form-control" id="eosspecdate" name="eosspecdate" type="date" min="1970-01-01" max="2024-01-01" required></td>
+						<td class="align-middle">Genetic testing specimen type:</td>
+						<td class="align-middle">
+							<select autocomplete="off" autofocus class="form-control" id="eosspecmode" name="eosspecmode" required>
+							<option value="" selected></option>
+							<option>Saliva</option>
+							<option>Blood</option>
+							<option>None</option>
+						</select>
+						</td>
+						<td class="align-middle">
+							<textarea autocomplete="off" autofocus class="form-control" rows="0" id="eosspecnotes" name="eosspecnotes" placeholder="notes"></textarea>
+						</td>
+						<td class="align-middle">
+							<button type="submit" class="btn btn-success" name="eosspecID" value="{{ pt.roarid | safe}}">
+								<b>Save Date</b>
+							</button>
+						</td>
+					</tr>
+					</form>
+					
+
+					<tr>
+						<th class="align-middle">End-of-Study LDL:</th>
+						
+						{% if eosldl == [] %}
+						<td class="align-middle">Pending</td>
+						{% if pt.randomizationdate == None %}
+							<td class="align-middle">Pending</td>
+						{% else %}
+							<td class="align-middle">{{ pt.randomizationdate + relativedelta(months=6) }}</td>
+						{% endif %}		
+						<td class="align-middle">Pending</td>
+						{% else %}
+						<td class="align-middle">Completed</td>						
+						<td class="align-middle">{{ pt.randomizationdate + relativedelta(months=6) }}</td>
+						<td class="align-middle">{{ eosldl[0][2] | safe }}</td>
+						{% endif %}
+						<td class="align-middle">
+							<button type="submit" class="btn btn-primary" name="eosLDLID" value="{{ pt.roarid | safe}}" onclick="recordeosLDL(this)" {% if pt.randomizationdate == None or eosldl != [] %} disabled {% else %}{% endif %}>
+								<b>Complete</b>
+							</button>
+						</td>
+					</tr>
+					
+					<form action="/record_eos_LDL" method="post" id="eosLDLData">
+					<tr id="eosLDLinput" style="display: none;">
+						<th class="align-middle">Record End-of-study LDL:</th>
+						<td class="align-middle">LDL date:</td>
+						<td class="align-middle"><input autocomplete="off" autofocus class="form-control" id="eosLDLdate" name="eosLDLdate" type="date" min="1970-01-01" max="2024-01-01" placeholder="LDL date" required></td>
+						<td class="align-middle">
+							<select autocomplete="off" autofocus class="form-control" id="eosLDLmode" name="eosLDLmode" required>
+							<option value="" selected>LDL source</option>
+							<option>Study draw</option>
+							<option>JLV</option>
+						</select>
+						</td>
+						<td class="align-middle">
+						<input autocomplete="off" autofocus class="form-control" id="eosLDL" name="eosLDL" type="number" min="0" max="1000" placeholder="LDL value" required>
+						</td>
+						<td class="align-middle">
+							<textarea autocomplete="off" autofocus class="form-control" rows="0" id="eosLDLnotes" name="eosLDLnotes" placeholder="notes"></textarea>
+						</td>
+						<td class="align-middle">
+							<button type="submit" class="btn btn-success" name="eosLDLID" value="{{ pt.roarid | safe}}">
+								<b>Save Date</b>
+							</button>
+						</td>
+					</tr>
+					</form>
+					
+
+					<tr>
+						<th class="align-middle">End-of-Study Survey:</th>
+						
+						{% if eossurv == [] %}
+						<td class="align-middle">Pending</td>
+						{% if pt.randomizationdate == None %}
+							<td class="align-middle">Pending</td>
+						{% else %}
+							<td class="align-middle">{{ pt.randomizationdate + relativedelta(months=6) }}</td>
+						{% endif %}		
+						<td class="align-middle">Pending</td>
+						{% else %}
+						<td class="align-middle">Completed</td>						
+						<td class="align-middle">{{ pt.randomizationdate + relativedelta(months=6) }}</td>
+						<td class="align-middle">{{ eossurv[0][2] | safe }}</td>
+						{% endif %}
+						<form action="/eos_survey" method="post">
+						<td class="align-middle">
+							<button type="submit" class="btn btn-primary" name="eosSurveyID" value="{{ pt.roarid | safe}}" {% if pt.randomizationdate == None or eossurv != [] %} disabled {% else %}{% endif %}>
+								<b>Complete</b>
+							</button>
+						</td>
+						</form>
+					</tr>	
+			
+					<tr>
+						<th class="align-middle">Incentive Payment:</th>
+						
+						{% if incentive == [] %}
+						<td class="align-middle">Pending</td>
+						{% if eossurv == [] %}
+							<td class="align-middle">Pending</td>
+						{% else %}
+							<td class="align-middle">{{ eossurv[0][2] | safe }}</td>
+						{% endif %}		
+						<td class="align-middle">Pending</td>
+						{% else %}
+						<td class="align-middle">Completed</td>						
+						<td class="align-middle">{{ eossurv[0][2] | safe }}</td>
+						<td class="align-middle">{{ incentive[0][2] | safe }}</td>
+						{% endif %}
+						<td class="align-middle">
+							<button type="submit" class="btn btn-primary" name="incentiveID" value="{{ pt.roarid | safe}}" onclick="recordIncentive(this)" {% if eossurv == [] or incentive != [] %} disabled {% else %}{% endif %}>
+								<b>Complete</b>
+							</button>
+						</td>
+					</tr>
+
+					<form action="/record_incentive" method="post" id="incentiveData">
+					<tr id="incentiveInput" style="display: none;">
+						<th class="align-middle">Record Incentive Payment:</th>
+						<td class="align-middle">
+							<select autocomplete="off" autofocus class="form-control" id="incentiveMode" name="incentiveMode" required>
+							<option value="" selected>Incentive paid:</option>
+							<option>Yes</option>
+							<option>No</option>
+						</select>
+						</td>
+						<td class="align-middle">Payment date:</td>
+						<td class="align-middle"><input autocomplete="off" autofocus class="form-control" id="incentiveDate" name="incentiveDate" type="date" min="1970-01-01" max="2024-01-01" placeholder="Incentive date" required></td>
+						<td class="align-middle">
+							<textarea autocomplete="off" autofocus class="form-control" rows="0" id="incentiveNotes" name="incentiveNotes" placeholder="notes"></textarea>
+						</td>
+						<td class="align-middle">
+							<button type="submit" class="btn btn-success" name="incentiveID" value="{{ pt.roarid | safe}}">
+								<b>Save Date</b>
+							</button>
+						</td>
+					</tr>
+					</form>
+									
+				</tbody>
+					
+			</table>
+
+		</div>
+		
+	</div>
+
+	<div class="col-lg-5">
+		
+		<div class="shadow p-3 mb-5 bg-white rounded">
+
+			<b><u>MEDICATIONS</u></b>
+			<br>
+			<br>
+			<table class="table table-condensed table-hover" id="medTable">
+				<thead>
+					<tr>
+						<th>#</th>
+						<th>Medication</th>
+						<th>Dose</th>
+						<th>Unit</th>
+						<th>Start Date</th>
+						<th>End Date</th>		
+					</tr>
+				</thead>
+					<tbody>
+						{% for med in ptMeds %}
+							<tr>
+							<td class="align-middle">{{ loop.index }}</td>
+							<td class="align-middle">{{ med.medname }}</td>
+							<td class="align-middle">{{ med.dose }}</td>
+							<td class="align-middle">{{ med.unit }}</td>
+							<td class="align-middle">{{ med.medstartdate }}</td>
+							{% if med.medenddate == None %}
+								<td class="align-middle">ACTIVE</td>
+							{% else %}
+								<td class="align-middle">{{ med.medenddate }}</td>
+							{% endif %}
+							</tr>
+						{% endfor %}
+					</tbody>
+			</table>
+			<br>
+			<form action="/update_medication" method="post">
+				<button type="submit" class="btn btn-primary btn-block" name="updateMedicationID" value="{{ pt.roarid | safe}}" {% if pt.deceased == 1 or cr == [] %} disabled {% else %}{% endif %}>
+					<b>Update Participant Medication List</b>
+				</button>	
+			</form>
+
+		</div>
+		
+	</div>
+
+</div>
+
+
+<div class="row">
+	
+	<div class="col-lg">
+		
+		<div class="shadow p-3 mb-5 bg-white rounded">
+	
+			<b><u>MVP-ROAR PARTICIPANT ACTION AND CONTACT LOG</u></b>
+			<br>
+			<br>
+			<table class="table table-condensed table-bordered table-hover" id="logTable">
+				<thead>
+					<tr>
+						<th>#</th>
+						<th>Date</th>
+						<th>Task</th>
+						<th>Mode</th>
+						<th>Outcome</th>
+						<th>Notes</th>	
+					</tr>
+				</thead>
+					<tbody>
+						
+						{% for item in ptLog %}
+						
+						<tr>
+							<td class="align-middle"> {{ loop.index }} </td>
+							<td class="align-middle"> {{ item.taskdate | safe }} </td>
+							<td class="align-middle"> {{ item.taskname.upper() | safe }} </td>
+							<td class="align-middle"> {{ item.mode | safe }} </td>
+							<td class="align-middle"> {{ item.outcome | safe }} </td>
+							<td class="align-middle"> {{ item.note | safe }} </td>
+						</tr>
+						
+						{% endfor %}
+						
+					</tbody>
+			</table>
+
+		</div>
+		
+	</div>
+	
+</div>
+
+
+<script>
+
+// toggle recruitment letter date
+
+function recordrecruitmailing() { 
+	
+	var recletterinfo = document.getElementById("recletterinput");
+	
+	if (recletterinfo.style.display == "none") {
+	
+		recletterinfo.style.display="";
+	
+	}	
+	
+	else {
+		
+		recletterinfo.style.display="none";
+		
+	}
+	
+}
+
+// toggle pedigree date
+
+function recordpedigree() { 
+	
+	var recletterinfo = document.getElementById("pedigreeinput");
+	
+	if (recletterinfo.style.display == "none") {
+	
+		recletterinfo.style.display="";
+	
+	}	
+	
+	else {
+		
+		recletterinfo.style.display="none";
+		
+	}
+	
+}		
+
+// toggle baseline specimen collection
+
+function recordbaselinespecdate() { 
+	
+	var blspecinfo = document.getElementById("baselinespecinput");
+	
+	if (blspecinfo.style.display == "none") {
+	
+		blspecinfo.style.display="";
+	
+	}	
+	
+	else {
+		
+		blspecinfo.style.display="none";
+		
+	}
+	
+}
+
+// toggle baseline LDL
+
+function recordbaselineLDL() { 
+	
+	var blLDLinfo = document.getElementById("baselineLDLinput");
+	
+	if (blLDLinfo.style.display == "none") {
+	
+		blLDLinfo.style.display="";
+	
+	}	
+	
+	else {
+		
+		blLDLinfo.style.display="none";
+		
+	}
+	
+}		
+
+// toggle delresletter date
+
+function recorddelresletter() { 
+	
+	var recletterinfo = document.getElementById("delresletterinput");
+	
+	if (recletterinfo.style.display == "none") {
+	
+		recletterinfo.style.display="";
+	
+	}	
+	
+	else {
+		
+		recletterinfo.style.display="none";
+		
+	}
+	
+}	
+
+
+// toggle eos specimen collection
+
+function recordeosspecdate() { 
+	
+	var eosspecinfo = document.getElementById("eosspecinput");
+	
+	if (eosspecinfo.style.display == "none") {
+	
+		eosspecinfo.style.display="";
+	
+	}	
+	
+	else {
+		
+		eosspecinfo.style.display="none";
+		
+	}
+	
+}
+
+
+// toggle eos LDL
+
+function recordeosLDL() { 
+	
+	var eosLDLinfo = document.getElementById("eosLDLinput");
+	
+	if (eosLDLinfo.style.display == "none") {
+	
+		eosLDLinfo.style.display="";
+	
+	}	
+	
+	else {
+		
+		eosLDLinfo.style.display="none";
+		
+	}
+}
+
+
+// toggle incentive payment
+
+function recordIncentive() { 
+	
+	var incentiveinfo = document.getElementById("incentiveInput");
+	
+	if (incentiveinfo.style.display == "none") {
+	
+		incentiveinfo.style.display="";
+	
+	}	
+	
+	else {
+		
+		incentiveinfo.style.display="none";
+		
+	}
+	
+}	
+
+
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,760 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Update Contact Information
+{% endblock %}
+{% block header %}
+
+	<div style="font-size: 24px;">
+		
+		<b><u>UPDATE PARTICIPANT INFORMATION:</u> {{ pt.roarid }} </b>
+
+	</div>
+
+{% endblock %}
+
+{% block content %}
+
+<!-- Unique styling for this page / consider adding css file -->
+
+<style>
+	
+.table {
+	margin-bottom: 0rem;
+}
+
+.table th {
+	padding: 0.25rem;
+}
+
+.table td {
+	padding: 0.25rem;
+}
+
+#formrow {
+	align-items: center;
+}
+
+label span {
+	display: inline-block;
+	vertical-align: text-top;
+	margin-right: 60px;
+}
+
+</style>
+
+<!-- Page body -->
+
+<br>
+
+<div class="row">
+	
+	<div class="col-lg-5" id="showsubmit">	
+		
+		<div class="shadow p-3 mb-5 bg-white rounded">
+		
+			<b><u>PARTICIPANT DATA</u></b>
+			<br>
+			<br>
+			<table class="table table-condensed table-hover" id="demTable">
+				<tbody>
+					<tr>
+						<th style="width: 35%">Name:</th>
+						<td> {{ pt.firstname | safe }} {{ pt.lastname | safe }} </td>
+						<td></td>
+					</tr>
+					<tr>
+						<th>MVP ROAR ID:</th>
+						<td> {{ pt.roarid | safe }} </td>
+						<td></td>
+					</tr>
+					<tr>
+						<th>MVP Core ID:</th>
+						<td> {{ pt.mvpcoreid | safe }} </td>
+						<td></td>
+					</tr>
+					<tr>
+						<th>Last 4 SSN:</th>
+						<td> {{ pt.ssn | safe }} </td>
+						<td></td>
+					</tr>
+					<tr>
+						<th>VA Station:</th>
+						<td>
+							{% if ptVA == None %}
+								PENDING
+							{% else %}
+								{{ ptVA.sta3nname | safe }}
+							{% endif %}
+						</td>
+						<td class="align-middle">
+							<button type="submit" class="btn btn-primary" name="updateVAID" id="updateVAID" value="{{ pt.roarid | safe }}" onclick="showVAdiv(this)">
+								<b>Update</b>
+							</button>
+						</td>
+					</tr>
+					<tr>
+						<th>Postal Address:</th>
+						<td> 
+							{{ pt.street1 | safe }} {% if pt.street2 == None or pt.street2 == '' %}{% else %} <br> {{ pt.street2 | safe }} {% endif %} {% if pt.street3 == None or pt.street3 == '' %}{% else %} <br> {{ pt.street3 | safe }} {% endif %}
+							<br> {{ pt.city | safe }}, {{ pt.state | safe }} {{ pt.zipcode | safe }}
+						</td>
+						<td class="align-middle">
+							<button type="submit" class="btn btn-primary" name="updateAddressID" id="updateAddressID" value="{{ pt.roarid | safe }}" onclick="showAddressdiv(this)">
+								<b>Update</b>
+							</button>
+						</td>
+					</tr>
+					<tr>
+						<th>Active Phone Numbers:</th>
+						<td>{% if ptPhone|length > 0 %}
+								{% for ptp in ptPhone %}
+									{% if ptp.primaryphone == 1 %}
+										{{ ptp.patientphone | safe }} (Primary)
+									{% else %}
+										<br> {{ ptp.patientphone | safe }} 
+									{% endif %}
+								{% endfor %}
+							{% else %}
+								PENDING
+							{% endif %}
+						</td>
+						<td class="align-middle">
+							<button type="submit" class="btn btn-primary" name="updatePhoneID" id="updatePhoneID" value="{{ pt.roarid | safe }}" onclick="showPhonediv(this)">
+								<b>Update</b>
+							</button>
+						</td>
+					</tr>
+					<tr>
+						<th>Email Address:</th>
+						<td>{% if ptEmail|length > 0 %}
+								{% for pte in ptEmail %}
+									{{ pte.patientemail | safe }}<br> 
+								{% endfor %}
+							{% else %}
+								PENDING
+							{% endif %}
+						</td>
+						<td class="align-middle">
+							<button type="submit" class="btn btn-primary" name="updateEmailID" id="updateEmailID" value="{{ pt.roarid | safe }}" onclick="showEmaildiv(this)">
+								<b>Update</b>
+							</button>
+						</td>
+					</tr>
+					
+
+					<tr>
+						<th>Providers:</th>
+						<td> 
+							{% for prov in ptProv %}
+								{{ prov.provider }} ({% if prov.vaprovider == True %} VA {% else %} Non-VA {% endif %}) <br>
+							{% endfor %}
+						</td>
+						<td class="align-middle">
+							<button type="submit" class="btn btn-primary" name="updateVAprovID" id="updateVAprovID" value="{{ pt.roarid | safe }}" onclick="showProviderdiv(this)">
+								<b>Update</b>
+							</button>
+						</td>
+					</tr>
+
+
+					<tr>
+						<th>Enrollment status:</th>
+						{% if pt.deceased == 1 %}
+						<td> DECEASED / {{ pt.deceaseddate }} </td>
+						{% elif pt.withdrawn == 1 %}
+						<td> WITHDRAWN / {{ pt.withdrawndate }} </td>
+						{% elif pt.losttofup == 1 %}
+						<td> LOST TO FOLLOW UP / {{ pt.losttofupdate }} </td>
+						{% elif pt.randomizationstatus != None %}
+						<td> {{ pt.randomizationstatus }} / {{ pt.randomizationdate }} </td>
+						{% elif pt.consented == 1 %}
+						<td> CONSENTED / {{ pt.consenteddate }} </td>
+						{% elif pt.declined == 1 %}
+						<td> DECLINED / {{ pt.declineddate }} </td>
+						{% elif pt.eligible == 1 %}
+						<td> PENDING CONSENT / {{ pt.eligibledate }} </td>
+						{% else %}
+						<td> NOT ELIGIBLE </td>
+						{% endif %}
+						<td class="align-middle">
+							<button type="submit" class="btn btn-primary" name="updatestudystatusID" id="updatestudystatusID" value="{{ pt.roarid | safe }}" onclick="showStatusdiv(this)">
+								<b>Update</b>
+							</button>
+						</td>
+					</tr>
+
+				</tbody>
+			</table>
+		
+		</div>
+		
+	</div>
+
+
+	<div class="col-lg-7">
+		
+		<div class="shadow p-3 mb-5 bg-white rounded">
+			
+			<form action="/commit_update_contact" method="post" id="updateContactData">
+		
+			<b><u>DATA TO UPDATE (PLEASE SELECT ELEMENTS TO UPDATE):</u></b>
+			<br>
+			<br>	
+
+			<!-- VA station -->
+
+			<div id="formrow vaDiv" style="display: none;">
+
+			<u><b>VA STATION</b></u>
+			<br>
+			<br>
+
+				<div class="form-group row">
+					<label for="vaStation" class="control-label col-md-3"><b>New VA Station:&#160&#160</b></label>
+					<div class="col-md-8">
+						
+						<input autocomplete="off" autofocus class="form-control" id="vaStation" name="vaStation" value="" placeholder="Select new VA Station... (Station #) Station Name" type="text" list="stationlist">
+						
+						<datalist id="stationlist">
+							
+							{% for sta3n in vaSta3ns %}
+								<option value="{{ sta3n.sta3nname  | safe }}">
+							{% endfor %}
+						
+						</datalist>
+						
+					</div>
+				</div>
+			
+			</div>
+			
+			<!-- Address -->
+
+			<div id="formrow addressDiv" style="display: none;">
+			
+			<u><b>PARTICIPANT ADDRESS</b></u>
+			<br>
+			<br>
+
+				<div class="form-group row">
+					<label for="street1" class="control-label col-md-3"><b>Street 1:&#160&#160</b></label>
+					<div class="col-md-8">
+						<input autocomplete="off" autofocus class="form-control" id="street1" name="street1" value="" placeholder="Street address" type="text">
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label for="street2" class="control-label col-md-3"><b>Street 2:&#160&#160</b></label>
+					<div class="col-md-8">
+						<input autocomplete="off" autofocus class="form-control" id="street2" name="street2" value="" placeholder="Street address / apt no." type="text">
+					</div>
+				</div>
+				
+				<div class="form-group row">
+					<label for="street3" class="control-label col-md-3"><b>Street 3:&#160&#160</b></label>
+					<div class="col-md-8">
+						<input autocomplete="off" autofocus class="form-control" id="street3" name="street3" value="" placeholder="Street address / apt no." type="text">
+					</div>
+				</div>
+				
+				<div class="form-group row">
+					<label for="city" class="control-label col-md-3"><b>City:&#160&#160</b></label>
+					<div class="col-md-8">
+						<input autocomplete="off" autofocus class="form-control" id="city" name="city" value="" pattern="[a-zA-Z ]*" placeholder="City" type="text">
+					</div>
+				</div>
+				
+				<div class="form-group row">
+				<label for="state" class="control-label col-md-3"><b>State:&#160&#160</b></label>
+				<div class="col-md-8">
+						
+					<input autocomplete="off" autofocus class="form-control" id="state" name="state" value="" pattern="[A-Z]{2}" placeholder="State" type="text" list="states">
+						
+					<datalist id="states">
+							
+						{% for state in states %}
+							<option value="{{ state }}">
+						{% endfor %}
+						
+					</datalist>
+						
+				</div>
+				</div>
+				
+				<div class="form-group row">
+					<label for="zipcode" class="control-label col-md-3"><b>Zip code:&#160&#160</b></label>
+					<div class="col-md-8">
+						<input autocomplete="off" autofocus class="form-control" id="zipcode" name="zipcode" value="" pattern="[0-9]{5}" placeholder="Zipcode" type="text">
+					</div>
+				</div>
+		
+			</div>	
+			
+			<!-- Phone numbers -->
+			
+			<div id="formrow phoneDiv" style="display: none;">
+		
+			<u><b>PARTICIPANT PHONE NUMBER</b></u>
+			<br>
+			<br>
+				
+				<div class="form-group row" id="formrow">
+					<label for="teltype" class="control-label col-md-3"><b>Phone update:&#160&#160</b></label>
+					<div class="col-md-8">
+						<select autocomplete="off" autofocus class="form-control" id="teltype" name="teltype" onclick="phoneOptions()">
+							<option value="" selected>Select new phone type...</option>
+							
+							<option> Add primary phone number </option>
+							<option> Add secondary phone number </option>
+							
+						</select>
+					</div>
+				</div>	
+							
+				<div class="form-group row" id="formrow">
+					<label for="tel" class="control-label col-md-3"><b>Phone:&#160&#160</b></label>
+					<div class="col-md-8">
+						<input autocomplete="off" autofocus class="form-control" id="tel" name="tel" type="tel" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" value="" placeholder="Enter phone number, 555-555-5555">
+					</div>
+				</div>
+				
+				<div class="form-group row" id="formrow removereplace" {% if ptPhone == [] %} style="display: none;" {% else %} style="display: "";" {% endif %}>
+					<label for="removetel" class="control-label col-md-3"><b>Remove or replace:&#160&#160</b></label>
+					<div class="col-md-8">
+						<select autocomplete="off" autofocus class="form-control" id="removetel" name="removetel">
+							<option value="" selected>Select phone number to remove or replace...</option>
+							
+							<option> Do not remove or replace existing phone numbers </option>
+						
+							{% for ptp in ptPhone %}
+								<option id="primaryphone_{{ ptp.primaryphone | safe }}" style="display: "";"> {{ ptp.patientphone | safe }} </option>
+							{% endfor %}
+							
+						</select>
+					</div>
+				</div>	
+		
+			</div>
+			
+			<!-- Email addresses -->
+
+			<div id="formrow emailDiv" style="display: none;">
+				
+			<u><b>PARTICIPANT EMAIL ADDRESS</b></u>
+			<br>
+			<br>
+				
+				<div class="form-group row" id="formrow">
+					<label for="emailtype" class="control-label col-md-3"><b>Email update:&#160&#160</b></label>
+					<div class="col-md-8">
+						<select autocomplete="off" autofocus class="form-control" id="emailtype" name="emailtype">
+							<option value="" selected>Select new email type...</option>
+							
+							<option> Add email address </option>
+							
+						</select>
+					</div>
+				</div>	
+							
+				<div class="form-group row" id="formrow">
+					<label for="email" class="control-label col-md-3"><b>Email:&#160&#160</b></label>
+					<div class="col-md-8">
+						<input autocomplete="off" autofocus class="form-control" id="email" name="email" type="email" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,4}$" value="" placeholder="Enter email address, example@someplace.org">
+					</div>
+				</div>
+				
+				<div class="form-group row" id="formrow removereplaceemail" {% if ptEmail == [] %} style="display: none;" {% else %} style="display: "";" {% endif %}>
+					<label for="removeemail" class="control-label col-md-3"><b>Remove or replace:&#160&#160</b></label>
+					<div class="col-md-8">
+						<select autocomplete="off" autofocus class="form-control" id="removeemail" name="removeemail">
+							<option value="" selected>Select email address to remove or replace...</option>
+							
+							<option> Do not remove or replace existing email addresses </option>
+						
+							{% for pte in ptEmail %}
+								<option> {{ pte.patientemail | safe }} </option>
+							{% endfor %}
+							
+						</select>
+					</div>
+				</div>	
+			
+			</div>
+			
+			<!-- Providers -->
+
+			<div id="formrow providerDiv" style="display: none;">
+
+			<u><b>PARTICIPANT PROVIDER</b></u>
+			<br>
+			<br>
+				
+				<div class="form-group row" id="formrow">
+					<label for="providertype" class="control-label col-md-3"><b>Provider update:&#160&#160</b></label>
+					<div class="col-md-8">
+						<select autocomplete="off" autofocus class="form-control" id="providertype" name="providertype" onclick="displayProviderAlert()">
+							<option value="" selected>Select new provider type...</option>
+							
+							<option> Add new VA provider </option>
+							<option> Add new NON-VA provider </option>
+							
+						</select>
+					</div>
+				</div>	
+				
+				<div class="alert alert-info" role="alert" id="provideralert" style="display: none;">
+				
+				<b>Info!:</b>
+				<br>
+				Reminder: Must have a VA Form 10-5345 on file to share study data with a <b>NON-VA</b> provider.
+				<br>
+				
+				</div>
+							
+				<div class="form-group row" id="formrow">
+					<label for="provider" class="control-label col-md-3"><b>Provider name:&#160&#160</b></label>
+					<div class="col-md-8">
+						<input autocomplete="off" autofocus class="form-control" id="provider" name="provider" value="" placeholder="Enter provider name... (First Name Last Name, Degree)" type="text">
+					</div>
+				</div>
+				
+				<div class="form-group row" id="formrow removereplaceemail" {% if ptProv == [] %} style="display: none;" {% else %} style="display: "";" {% endif %}>
+					<label for="removeprovider" class="control-label col-md-3"><b>Remove or replace:&#160&#160</b></label>
+					<div class="col-md-8">
+						<select autocomplete="off" autofocus class="form-control" id="removeprovider" name="removeprovider">
+							<option value="" selected>Select provider to remove or replace...</option>
+							
+							<option> Do not remove or replace existing providers </option>
+						
+							{% for prov in ptProv %}
+								<option> {{ prov.provider | safe }} </option>
+							{% endfor %}
+							
+						</select>
+					</div>
+				</div>	
+			
+			</div>
+			
+			<!-- Study Status -->
+
+			<div id="formrow statusDiv" style="display: none;">
+
+			<u><b>PARTICIPANT STATUS</b></u>
+			<br>
+			<br>
+			
+				<div class="alert alert-danger" role="alert">
+				
+				<b>Warning!:</b>
+				<br>
+				<br>
+				If participant <b>unable to contact</b>: record additional information in notes and remember to send participant a study unable to contact letter.
+				<br>
+				<br>
+				If participant <b>lost to follow up</b>: record additional information in notes and remember to send participant a study lost to follow up letter.
+				<br>
+				<br>
+				If participant <b>withdrawing</b>: record reason in notes and remember to send participant a study withdraw letter.
+				<br>
+				<br>
+				If participant has <b>died</b> while enrolled in the study: record reason in notes and review VA CIRB adverse event form to determine whether a submission is required.
+				<br>
+				<br>
+				
+				</div>
+				
+				<div class="form-group row" id="formrow">
+					<label for="statustype" class="control-label col-md-3"><b>Status update:&#160&#160</b></label>
+					<div class="col-md-8">
+						<select autocomplete="off" autofocus class="form-control" id="statustype" name="statustype">
+							<option value="" selected>Select status update...</option>
+
+							<option> Participant unable to contact </option>
+							<option> Participant lost to follow up </option>
+							<option> Participant has withdrawn </option>
+							<option> Participant is deceased </option>
+							
+						</select>
+					</div>
+				</div>	
+							
+				<div class="form-group row" id="formrow">
+					<label for="statusdate" class="control-label col-md-3"><b>Status date:&#160&#160</b></label>
+					<div class="col-md-8">
+						<input autocomplete="off" autofocus class="form-control" id="statusdate" name="statusdate" type="date" min="1970-01-01" max="2024-01-01">
+					</div>
+				</div>
+	
+			
+			</div>
+		
+		<!-- Add submit button -->
+		
+		<div id="submitUpdateContactInformation" style="display: none;">
+
+		<u><b>SOURCE AND ADDITIONAL INFORMATION</b></u>
+		<br>
+		<br>
+			
+		<div class="form-group row" id="formrow">
+			<label for="updatemode" class="control-label col-md-3"><b>Update source:&#160&#160</b></label>
+			<div class="col-md-8">
+				<select autocomplete="off" autofocus class="form-control" id="updatemode" name="updatemode">
+					<option value="" selected>Select update source...</option>	
+					<option> JLV </option>
+					<option> Participant </option>		
+					<option> Other </option>	
+				</select>
+			</div>
+		</div>	
+			
+		<div class="form-group row" id="formrow">
+			<label for="notes" class="control-label col-md-1"><b>Notes:&#160&#160</b></label>
+				<div class="col-md-11">
+					<textarea autocomplete="off" autofocus class="form-control" rows="2" id="notes" name="notes"></textarea>
+				</div>
+		</div>
+
+		<button type="submit" class="btn btn-primary btn-block" name="submitUpdateContactID" value="{{ pt.roarid | safe }}">
+			<b> Submit Update </b>
+		</button>
+		
+		</div>	
+
+		</form>
+		
+		</div>
+
+	</div>
+
+</div>
+
+<!-- Script to show hide divs / require fields -->
+
+<script>
+
+// Dynamically make divs visible depending on update selections
+
+function showVAdiv() {
+	
+	var vadiv = document.getElementById("formrow vaDiv");
+	
+	if (vadiv.style.display == "none") {
+		vadiv.style.display = "";
+		document.getElementById("vaStation").required = true;
+		document.getElementById("updateVAID").className = "btn btn-danger";
+	
+		
+	}
+	
+	else {
+		
+		vadiv.style.display = "none";
+		document.getElementById("vaStation").required = false;
+		document.getElementById("updateVAID").className = "btn btn-primary";
+		
+	}
+
+}
+
+
+function showAddressdiv() {
+	
+	var addressdiv = document.getElementById("formrow addressDiv");
+	
+	if (addressdiv.style.display == "none") {
+		addressdiv.style.display = "";
+		document.getElementById("street1").required = true;
+		document.getElementById("state").required = true;
+		document.getElementById("city").required = true;
+		document.getElementById("zipcode").required = true;
+		document.getElementById("updateAddressID").className = "btn btn-danger";
+		
+	}
+	
+	else {
+		
+		addressdiv.style.display = "none";
+		document.getElementById("street1").required = false;
+		document.getElementById("state").required = false;
+		document.getElementById("city").required = false;
+		document.getElementById("zipcode").required = false
+		document.getElementById("updateAddressID").className = "btn btn-primary";
+		
+	}
+
+}
+
+
+function showPhonediv() {
+	
+	var phonediv = document.getElementById("formrow phoneDiv");
+	
+	if (phonediv.style.display == "none") {
+		phonediv.style.display = "";
+		document.getElementById("teltype").required = true;
+		document.getElementById("tel").required = true;
+		document.getElementById("removetel").required = true;
+		document.getElementById("updatePhoneID").className = "btn btn-danger";
+		
+	}
+	
+	else {
+		
+		phonediv.style.display = "none";
+		document.getElementById("teltype").required = false;
+		document.getElementById("tel").required = false;
+		document.getElementById("removetel").required = false;
+		document.getElementById("updatePhoneID").className = "btn btn-primary";
+		
+	}
+
+}
+
+
+function phoneOptions() {
+		
+	var phoneupdatetype = document.getElementById("teltype");
+	
+	if (phoneupdatetype.value == "Add secondary phone number") {
+		document.getElementById("primaryphone_True").style.display = "none";
+	}
+	
+	else {
+		document.getElementById("primaryphone_True").style.display = "";
+	}
+}
+
+
+function showEmaildiv() {
+	
+	var emaildiv = document.getElementById("formrow emailDiv");
+
+	if (emaildiv.style.display == "none") {
+		emaildiv.style.display = "";
+		document.getElementById("emailtype").required = true;
+		document.getElementById("email").required = true;
+		document.getElementById("updateEmailID").className = "btn btn-danger";
+		
+		if (document.getElementById("form removereplaceemail").style.display == "") {
+			document.getElementById("removeemail").required = true;
+		}
+		else {
+			document.getElementById("removeemail").required = false;	
+		}
+		
+	}
+	
+	else {
+		
+		emaildiv.style.display = "none";
+		document.getElementById("emailtype").required = false;
+		document.getElementById("email").required = false;
+		document.getElementById("removeemail").required = false;
+		document.getElementById("updateEmailID").className = "btn btn-primary";
+		
+	}
+
+}
+
+
+function showProviderdiv() {
+	
+	var providerdiv = document.getElementById("formrow providerDiv");
+
+	if (providerdiv.style.display == "none") {
+		providerdiv.style.display = "";
+		document.getElementById("providertype").required = true;
+		document.getElementById("provider").required = true;
+		document.getElementById("removeprovider").required = true;
+		document.getElementById("updateVAprovID").className = "btn btn-danger";
+		
+	}
+	
+	else {
+		
+		providerdiv.style.display = "none";
+		document.getElementById("providertype").required = false;
+		document.getElementById("provider").required = false;
+		document.getElementById("removeprovider").required = false;
+		document.getElementById("updateVAprovID").className = "btn btn-primary";
+		
+	}
+
+}
+
+function displayProviderAlert() {
+	
+	var providertype = document.getElementById("providertype");
+	var provideralert = document.getElementById("provideralert");
+	
+	if (providertype.value == "Add new NON-VA provider") {
+		provideralert.style.display = "";
+	}
+	else {
+		provideralert.style.display = "none";
+	}
+	
+}
+
+
+function showStatusdiv() {
+	
+	var statusdiv = document.getElementById("formrow statusDiv");
+
+	if (statusdiv.style.display == "none") {
+		statusdiv.style.display = "";
+		document.getElementById("statustype").required = true;
+		document.getElementById("statusdate").required = true;
+		document.getElementById("updatestudystatusID").className = "btn btn-danger";
+		
+	}
+	
+	else {
+		
+		statusdiv.style.display = "none";
+		document.getElementById("statustype").required = false;
+		document.getElementById("statusdate").required = false;
+		document.getElementById("updatestudystatusID").className = "btn btn-primary";
+		
+	}
+
+}
+
+
+// add event listener to 'showsubmit' to rerun the below script on each click
+
+document.getElementById("showsubmit").addEventListener("click", showSubmitInfo);
+
+function showSubmitInfo() {
+	
+	var submitdiv = document.getElementById("submitUpdateContactInformation");
+	var vadiv = document.getElementById("formrow vaDiv");
+	var addressdiv = document.getElementById("formrow addressDiv");
+	var phonediv = document.getElementById("formrow phoneDiv");
+	var emaildiv = document.getElementById("formrow emailDiv");
+	var providerdiv = document.getElementById("formrow providerDiv");
+	var statusdiv = document.getElementById("formrow statusDiv");
+
+	if (vadiv.style.display == "" || addressdiv.style.display == "" || phonediv.style.display == "" || emaildiv.style.display == "" || providerdiv.style.display == "" || statusdiv.style.display == "") {
+		submitdiv.style.display = "";
+		document.getElementById("updatemode").required = true;
+		
+		
+	}
+	
+	else {
+		
+		submitdiv.style.display = "none";
+		document.getElementById("updatemode").required = false;
+		
+	}
+
+}
+
+
+</script>
+
+{% endblock %}

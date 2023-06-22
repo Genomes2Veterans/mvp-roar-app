@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Error
+{% endblock %}
+{% block header %}
+
+	<div style="font-size: 24px;">
+		
+		<br><b> Something's happened... </b>
+
+	</div>
+	
+	<div>
+		
+		<br>
+		
+		<p>The data you entered is not valid, please try again.</p>
+		
+		<br>
+		
+		<p>This error is likely due to the following:</p>
+		
+		<br>
+		
+		<p> {{ errormsg }} </p>
+	
+	</div>
+
+{% endblock %}
+
+{% block content %}
+
+{% endblock %}
+

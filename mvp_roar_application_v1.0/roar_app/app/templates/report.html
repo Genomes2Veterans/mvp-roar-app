@@ -1,0 +1,280 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Genetic Report
+{% endblock %}
+{% block header %}
+
+<div style="font-size: 24px;">
+		
+	<b><u>GENETIC REPORT:</u> {{ pt.roarid | safe }} </b>
+
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+<!-- Add custom style to this page only -->
+
+<style>
+	
+.table {
+	margin-bottom: 0rem;
+}
+
+.table th {
+	padding: 0.25rem;
+}
+
+.table td {
+	padding: 0.25rem;
+}
+
+</style>
+
+<!-- Page body -->
+
+<br>
+
+<div class="row">
+	
+	<div class="col-lg-7">
+
+		<div class="shadow p-3 mb-5 bg-white rounded">
+			
+			<form action="/commit_genetic_report" method="post" id="geneticReportData">
+	
+				<b><u>ENTER GENETIC REPORT DATA</u></b>
+				<br>
+				<br>
+	
+				<div class="form-group row" id="formrow">
+					<label for="sampleType" class="control-label col-md-3"><b>Sample type:&#160&#160</b></label>
+					<div class="col-md-9">
+						<select autocomplete="off" autofocus class="form-control" id="sampleType" name="sampleType" required>
+							<option value="" selected></option>
+							<option>Blood</option>
+							<option>Saliva</option>
+						</select>
+					</div>
+				</div>
+		
+				<div class="form-group row" id="formrow">
+					<label for="sampleCollectionDate" class="control-label col-md-3"><b>Sample collection date:&#160&#160</b></label>
+					<div class="col-md-3">
+						<input autocomplete="off" autofocus class="form-control" id="sampleCollectionDate" name="sampleCollectionDate" type="date" min="1970-01-01" max="2024-01-01" required>
+					</div>
+				</div>
+				
+				<div class="form-group row" id="formrow">
+					<label for="sampleReportDate" class="control-label col-md-3"><b>Sample report date:&#160&#160</b></label>
+					<div class="col-md-3">
+						<input autocomplete="off" autofocus class="form-control" id="sampleReportDate" name="sampleReportDate" type="date" min="1970-01-01" max="2024-01-01" required>
+					</div>
+				</div>
+				
+				<div class="form-group row" id="formrow">
+					<label for="reportID" class="control-label col-md-3"><b>Invitae report number:&#160&#160</b></label>
+					<div class="col-md-3">
+						<input autocomplete="off" autofocus class="form-control" id="reportID" name="reportID" type="text" required>
+					</div>
+				</div>
+
+				<div class="form-group row" id="formrow">
+					<label for="confirmation" class="control-label col-md-3"><b>Was result confirmed?:&#160&#160</b></label>
+					<div class="col-md-9">
+						<select autocomplete="off" autofocus class="form-control" id="confirmation" name="confirmation" required>
+							<option value="" selected></option>
+							<option>Yes</option>
+							<option>No</option>
+						</select>
+					</div>
+				</div>
+				
+				<div class="form-group row" id="formrow">
+					<label for="confirmVariant" class="control-label col-md-3"><b>Confirmation variant:&#160&#160</b></label>
+					<div class="col-md-9">
+						<select autocomplete="off" autofocus class="form-control" id="confirmVariant" name="confirmVariant">
+							<option value="" selected>Select suspected LP/P variant...</option>
+							<option value="Did not confirm">Did not confirm</option>
+							{% for v in susV %}
+							<option> {{ v.cdot | safe }} </option>
+							{% endfor %}
+						</select>
+					</div>
+				</div>
+
+
+				<div class="form-group row" id="formrow">
+					<label for="variantStatus" class="control-label col-md-3"><b>Variant classification:&#160&#160</b></label>
+					<div class="col-md-9">
+						<select autocomplete="off" autofocus class="form-control" id="variantStatus" name="variantStatus">
+							<option value="" selected>Select current classification status as of report...</option>
+							<option>Pathogenic</option>
+							<option>Likely Pathogenic</option>
+							<option>Variant of Uncertain Significance</option>
+							<option>Likely Benign</option>
+							<option>Benign</option>
+							<option>Not applicable</option>
+						</select>
+					</div>
+				</div>
+
+		
+				<div class="form-group row" id="formrow">
+					<label for="notes" class="control-label col-md-3"><b>Notes:&#160&#160</b></label>
+					<div class="col-md-9">
+						<textarea autocomplete="off" autofocus class="form-control" rows="2" id="notes" name="notes"></textarea>
+					</div>
+				</div>
+				
+				<div class="form-group row" id="formrow">
+					<label for="timeSpent" class="control-label col-md-3"><b>Time spent (in minutes):&#160&#160</b></label>
+					<div class="col-md-9">
+						<input autocomplete="off" autofocus class="form-control" id="timeSpent" name="timeSpent" type="number" min="0" max="90" required>
+					</div>
+				</div>
+
+				<button type="submit" class="btn btn-primary btn-block" name="submitRerportDataID" value="{{ pt.roarid | safe }}">
+					<b>Submit Genetic Report Data</b>
+				</button>	
+
+			</form>
+			
+		</div>
+
+	</div>
+		
+	<div class="col-lg-5">
+		
+		<div class="shadow p-3 mb-5 bg-white rounded">
+			
+			<!-- Demographic information section, patient tables -->
+
+			<b><u>DEMOGRAPHIC AND HEALTH INFORMATION</u></b>
+			<br>
+			<br>
+			<table class="table table-condensed table-hover" id="demTable">
+				<tbody>
+					
+					<tr>
+						<th style="width: 35%">Name:</th>
+						<td>{{ pt.firstname | safe }} {{ pt.lastname | safe }}</td>
+					</tr>
+					
+					<tr>
+						<th>MVP ROAR ID:</th>
+						<td> {{ pt.roarid | safe }} </td>
+					</tr>
+					
+					<tr>
+						<th>MVP Core ID:</th>
+						<td> {{ pt.mvpcoreid | safe }} </td>
+					</tr>
+					
+					<tr>
+						<th>DOB / Age:</th>
+						<td>  {{ pt.dob | safe }} / {{ ptAge | safe }} </td>
+					</tr>
+					
+					<tr>
+						<th>Last 4 SSN:</th>
+						<td> {{ pt.ssn | safe }} </td>
+					</tr>
+					
+					<tr>
+						<th>Sex:</th>
+						{% if pt.sexmale == True %}
+						<td> MALE </td>
+						{% else %}
+						<td> FEMALE </td>
+						{% endif %}						
+					</tr>
+					
+					<tr>
+						<th>Race / Ethnicity:</th>
+						<td> {{ pt.race | safe }} / {{ pt.ethnicity | safe }} </td>
+					</tr>
+					
+					<tr>
+						<th>Participant Group:</th>
+						{% if pt.pilotparticipant == True %}
+						<td> PILOT PARTICIPANT </td>
+						{% else %}
+						<td> RCT PARTICIPANT </td>
+						{% endif %}		
+					</tr>
+					
+					<tr>
+						<th>Consent Status:</th>
+						{% if pt.consenteddate == None and pt.deceased == 1 %}
+						<td> NOT CONSENTED AND DECEASED </td>
+						{% elif pt.consenteddate == None and pt.eligible == 0 %}
+						<td> NOT CONSENTED AND NOT ELIGIBLE </td>
+						{% elif pt.declineddate != None and pt.eligible == 1 %}
+						<td> DECLINED / {{ pt.declineddate }}</td>
+						{% elif pt.consenteddate == None and pt.eligible == 1 %}
+						<td> NOT CONSENTED </td>
+						{% elif pt.consenteddate != None and pt.deceased == 1 %}
+						<td> CONSENTED / {{ pt.consenteddate }} AND DECEASED / {{ pt.deceaseddate }} </td>
+						{% elif pt.consenteddate != None and pt.withdrawn == 1 %}
+						<td> CONSENTED / {{ pt.consenteddate }} AND WITHDRAWN / {{ pt.withdrawndate }} </td>
+						{% elif pt.consenteddate != None and pt.eligible == 1 %}
+						<td> CONSENTED / {{ pt.consenteddate }}</td>
+						{% else %}
+						<td> PENDING </td>
+						{% endif %}		
+					</tr>
+					
+					<tr>
+						<th>Randomization Status:</th>
+						{% if pt.randomizationstatus == None %}
+						<td> NOT RANDOMIZED </td>
+						{% else %}
+						<td> {{ pt.randomizationstatus }} / {{ pt.randomizationdate }} </td>
+						{% endif %}		
+					</tr>
+					
+					<tr>
+						<th>Suspected cDot / rsID / axID:</th>
+						{% if ptGen == None %}
+						<td> PENDING </td>
+						{% else %}
+						<td> {{ ptGen.cdot | safe }} / {{ ptGen.rsID | safe }} / {{ ptGen.axID | safe }} </td>
+						{% endif %}						
+					</tr>
+					
+					<tr>
+						<th>Molecular Diagnosis FH:</th>
+						{% if ptGen.molecdiagnosis == 1 %}
+						<td> Yes </td>
+						{% elif ptGen.molecdiagnosis == 0 %}
+						<td> No </td>
+						{% else %}
+						<td> PENDING </td>
+						{% endif %}
+					</tr>
+					
+					<tr>
+						<th>Confirmation testing:</th>
+						{% if ptGen.confirmtesting == 1 and ptGen.confirmresult == 0 %}
+						<td> Not Confirmed / {{ ptGen.confirmsource | safe }} / {{ ptGen.confirmtestingdate | safe }} </td>
+						{% elif ptGen.confirmtesting == 1 and ptGen.confirmresult == 1 %}
+						<td> Confirmed / {{ ptGen.confirmsource | safe }} / {{ ptGen.confirmtestingdate | safe }} </td>
+						{% else %}
+						<td> PENDING </td>
+						{% endif %}
+					</tr>
+					
+				</tbody>
+				
+			</table>
+		
+		</div>
+		
+	</div>
+	
+</div>
+
+{% endblock %}

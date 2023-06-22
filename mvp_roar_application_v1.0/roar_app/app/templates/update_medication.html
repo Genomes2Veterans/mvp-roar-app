@@ -1,0 +1,378 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Update Medications
+{% endblock %}
+{% block header %}
+
+	<div style="font-size: 24px;">
+		
+		<b><u>UPDATE MEDICATIONS:</u> {{ roarid }} </b>
+
+	</div>
+
+{% endblock %}
+
+{% block content %}
+
+<!-- Unique styling for this page / consider adding css file -->
+
+<style>
+	
+.table {
+	margin-bottom: 0rem;
+}
+
+.table th {
+	padding: 0.25rem;
+}
+
+.table td {
+	padding: 0.25rem;
+}
+
+#formrow {
+	align-items: center;
+}
+
+label span {
+	display: inline-block;
+	vertical-align: text-top;
+	margin-right: 60px;
+}
+
+</style>
+
+<!-- Page body -->
+
+<br>
+
+<div class="container-fluid">
+
+<div class="row">
+	
+	<div class="col-lg">
+		
+		<div class="shadow p-3 mb-5 bg-white rounded">
+
+			<b><u>CURRENT MEDICATIONS</u></b>
+			<br>
+			<br>
+			<table class="table table-condensed table-hover" id="medTable">
+				<thead>
+					<tr>
+						<th>#</th>
+						<th>Medication</th>
+						<th>Dose</th>
+						<th>Unit</th>
+						<th>Start Date</th>
+						<th>End Date</th>	
+						<th></th>	
+					</tr>
+				</thead>
+					<tbody>
+						{% for med in ptMeds %}
+							<tr id="{{ 'medinfo' ~ (loop.index - 1) }}">
+							<td class="align-middle">{{ loop.index }}</td>
+							<td class="align-middle">{{ med.medname }}</td>
+							<td class="align-middle">{{ med.dose }}</td>
+							<td class="align-middle">{{ med.unit }}</td>
+							<td class="align-middle">{{ med.medstartdate }}</td>
+							{% if med.medenddate == None %}
+								<td class="align-middle">ACTIVE</td>
+							{% else %}
+								<td class="align-middle">{{ med.medenddate }}</td>
+							{% endif %}
+							<td class="align-middle">
+							<button type="submit" class="btn btn-primary" name="updateMed" id="{{ loop.index - 1 }}" data-name="{{ 'updateMed' ~ loop.index }}" data-medname="{{ med.medname }}" data-dose="{{ med.dose }}" data-unit="{{ med.unit }}" data-medid="{{ med.patientmedid }}" onclick="updateMed(this.id)">
+								<b>Update</b>
+							</button>
+						</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+			</table>
+
+		</div>
+		
+	</div>
+	
+		
+	<div class="col-lg">
+	
+	<form action="/commit_update_medications" method="post" id="updateMedData">
+	
+		<div class="shadow p-3 mb-5 bg-white rounded">
+			
+			<u><b> ADD NEW MEDICATIONS OR DOCUMENT DOSE CHANGES </b></u>
+			<br>
+			<br>
+			
+			<div class="alert alert-info">
+
+			<strong>Info!:</strong> 
+			<br>
+			1) If medication discontinuation, enter medication end date by selecting "Update" under current medications.
+			<br>
+			2) If dose change, update end date of former dose and add new medication and dose information.
+
+			</div>
+			
+			<div class="form-group row" id="formrow">
+				<label for="medications" class="control-label col-md-1"><b>New Rx:&#160&#160</b></label>
+				<div class="col-md-11">
+			
+				<table>
+					<tbody id="medTableBody">
+					<tr id="med">
+					<td><input autocomplete="off" autofocus class="form-control" id="med" name="med" value="" placeholder="Enter medication..." type="text" list="medlist">
+						
+					<datalist id="medlist">
+							
+						{% for med in meds %}
+							<option value="{{ med.medname | safe }}">
+						{% endfor %}
+						
+					</datalist>
+						
+					</td>
+					<td> &#160&#160 </td>
+					<td width="10%"><input autocomplete="off" autofocus class="form-control" id="dose" name="meddose" type="number" min="0" max="9999"></td>
+					<td> &#160&#160 </td>
+					<td>
+						<select autocomplete="off" autofocus class="form-control" id="unit" name="medunit">
+							<option selected>mg</option>
+							<option>mcg</option>
+							<option>g</option>
+							<option>cc</option>
+							<option>ml</option>
+							<option>L</option>"
+							<option>Other</option>
+						</select>
+					</td>
+					<td> &#160&#160 </td>
+					<td> Start date: </td>
+					<td><input autocomplete="off" autofocus class="form-control" id="meddate" name="meddate" type="date" min="1970-01-01" max="2024-01-01"></td>
+						
+					<td> &#160&#160 </td>
+						
+					<td><button type="button" class="btn btn-primary" onclick="addField();"><b>ADD</b></button></td>
+
+					<td><button type="button" class="btn btn-primary" onclick="deleteField(this)"><b>DEL</b></button></td>
+						
+					</tr>
+					</tbody>
+				</table>
+				
+				</div>
+					
+			</div>
+			
+			<!-- Add toggled div to update meds -->
+			
+			<div id="formrow medDiv" style="display: none;">
+			
+			<br>
+			<u><b> UPDATE DISCONTINUED MEDICATIONS </b></u>
+			<br>
+			<br>
+			
+			<div class="form-group row" id="formrow">
+				<label for="medications" class="control-label col-md-1"><b>Update Rx:&#160&#160</b></label>
+				<div class="col-md-11">
+			
+				<table>
+					<tbody id="medUpdateTableBody">
+						
+					
+					</tbody>
+				</table>
+				</div>
+			
+			</div>
+			
+		</div>
+
+		<br>
+		<u><b> UPDATE SOURCE AND NOTES </b></u>
+		<br>
+		<br
+		
+		<div id="submitMedicationInformation" style="display: ;">
+
+		<div class="form-group row" id="formrow">
+			<label for="medupdatemode" class="control-label col-md-3"><b>Update source:&#160&#160</b></label>
+			<div class="col-md-9">
+				<select autocomplete="off" autofocus class="form-control" id="medupdatemode" name="medupdatemode" required>
+					<option value="" selected>Select update source...</option>	
+					<option> JLV </option>
+					<option> Participant </option>		
+					<option> Other </option>	
+				</select>
+			</div>
+		</div>	
+
+		<div class="form-group row" id="formrow">
+			<label for="notes" class="control-label col-md-1"><b>Notes:&#160&#160</b></label>
+				<div class="col-md-11">
+					<textarea autocomplete="off" autofocus class="form-control" rows="2" id="notes" name="notes"></textarea>
+				</div>
+		</div>
+		
+		<button type="submit" class="btn btn-primary btn-block" name="submitUpdateMedicationID" value="{{ roarid | safe }}">
+			<b> Submit Update </b>
+		</button>
+		
+		</div>	
+		
+	</form>
+		
+	</div>
+	
+</div>
+
+</div>
+
+
+
+<script>
+
+// Declare function to add field to medication table
+
+// set counter for med table list, first element exists
+var counter = 2;
+
+function addField() {
+		var tr = document.getElementById("med").cloneNode(true);
+		
+		// change id of table row to something unique
+		tr.id = "med" + counter.toString();
+		
+		// change names to specific elements to pass to application
+		tr.querySelectorAll('[name="med"]')[0].value = "";
+		tr.querySelectorAll('[name="med"]')[0].name = "med" + counter.toString();
+		tr.querySelectorAll('[name="meddose"]')[0].value = "";
+		tr.querySelectorAll('[name="meddose"]')[0].name = "meddose" + counter.toString();
+		tr.querySelectorAll('[name="medunit"]')[0].name = "medunit" + counter.toString();
+		tr.querySelectorAll('[name="meddate"]')[0].value = "";
+		tr.querySelectorAll('[name="meddate"]')[0].name = "meddate" + counter.toString();
+		
+		// append newly cloned and named features to existing table
+		document.getElementById("medTableBody").appendChild(tr);
+		
+		// update counter
+		counter++;
+}
+
+
+// declare function to remove child node - only remove if not first node and if total nodes greater than 1
+
+function deleteField(elem) {
+		
+		var childnodecount = document.getElementById("medTableBody").childElementCount;
+		var elementID = elem.parentNode.parentNode.id;
+		
+		if (childnodecount > 1 && elementID != "med") {
+		
+			document.getElementById(elementID).remove();
+		
+		}
+		
+}
+
+
+// show update medication div and med to update based on click
+
+// Get table rows by name / set needed data elements in data-* fields
+let meds = document.getElementsByName("updateMed");
+
+// initialize empty array to collect meds based on selected items
+const updateMeds = [];
+
+function updateMed(med_id) {
+	
+	// get id of med to update
+	var medid = med_id
+	
+	// toggle button color
+	medbutton = document.getElementById(medid)
+	
+	if (medbutton.className == "btn btn-primary") {
+		medbutton.className = "btn btn-danger";
+	}
+	
+	else {
+		medbutton.className = "btn btn-primary";
+		
+	}
+	
+	// Loop through each row, collect button types, show or hide meddiv based includes
+	
+	// initialize empty array to display div
+	const buttontypes = []
+	
+	// loop 
+	meds.forEach((med) => {
+		medselect = med.className;
+		buttontypes.push(medselect);	
+	});
+	
+	
+	// toggle med update div if updated button found in list
+	var meddiv = document.getElementById("formrow medDiv");
+
+	if (buttontypes.includes("btn btn-danger")) {
+		meddiv.style.display = "";
+
+	}
+	
+	else {
+		
+		meddiv.style.display = "none";
+
+	}
+	
+	// collect medication information to be updated and created form fields
+	
+	// recreate list after every selection
+	const updateMeds = [];
+	
+	meds.forEach((med) => {
+		medselect = med.className;
+		if (medselect == "btn btn-danger") {
+			updateMeds.push(med.id);
+		}
+	});
+
+	var updatemedsdiv = document.getElementById("medUpdateTableBody");
+	
+	var updatemedfiller = "";
+	
+	for (var i=0; i < updateMeds.length; i++) {
+		
+		var idx = updateMeds[i];
+		
+		updatemedfiller +=  "<tr>\n" +
+							"<td> &#160&#160 </td>\n" +
+							"<td>" + meds[idx].dataset.medname + "</td>\n" +
+							"<td> &#160&#160 </td>\n" +
+							"<td>" + meds[idx].dataset.dose + "</td>\n" +
+							"<td>" + meds[idx].dataset.unit + "</td>\n" +
+							"<td> &#160&#160 </td>\n" +
+							"<td> End date: </td>\n" +
+							"<td> &#160&#160 </td>\n" +
+							"<td><input autocomplete='off' autofocus class='form-control' id='medenddate' name='" + meds[idx].dataset.name + "enddate' type='date' min='1970-01-01' max='2024-01-01' required></td>\n" +
+							"<td> &#160&#160 </td>\n" +
+							"<td><input type='text' name='" + meds[idx].dataset.name + "medid' value='" + meds[idx].dataset.medid + "' style='display: none;'></td>\n" +
+							"</tr>\n"
+	}
+	
+	updatemedsdiv.innerHTML = updatemedfiller;
+
+}
+
+
+
+</script>
+
+{% endblock %}

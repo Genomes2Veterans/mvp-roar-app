@@ -1,0 +1,961 @@
+{% extends "layout.html" %}
+
+{% block title %}
+
+Administer {{ survey_type }} survey
+
+{% endblock %}
+{% block header %}
+
+	<div style="font-size: 24px;">
+		
+		<hr>
+		<b><u> Survey participant:</u> {{ roar_id }} </b>
+		<br>
+		<br>
+		<b><u> Survey type:</u> {{ survey_type.upper() }} SURVEY {% if randStatus[0] == "BASELINE" %}{% else %} - {{ randStatus[0] }} {% endif %} </b>
+		<br>
+		<!--<a href="https://vhacdwweb05.vha.med.va.gov"> Administer REDCap Survey </a>-->
+		<hr>
+
+	</div>
+
+{% endblock %}
+
+{% block content %}
+
+<!-- Display elements based on survey type -->
+
+<div class="row">
+		
+	<div class="col-lg">
+		
+		<div class="shadow p-3 mb-5 bg-white rounded">
+			
+			
+			
+			<!-- Prompt to update medications -> if so, redirect to medication update page -->
+			
+			{% if survey_type == "eos" %}
+			
+			<div id="meds">
+			
+				<div style="font-size: 20px"><strong><u>MEDICATIONS</u></strong></div>
+			
+				<br>
+			
+				<strong>Before administering the survey, I'd Like to ask you about the medications you take. I am looking at a list of your VA prescriptions. 
+				Can you confirm if you are currently taking the following medications?</strong>
+			
+				<br>
+				<br>
+			
+				<form action="/update_medication" method="post">
+				<button type="submit" class="btn btn-primary" name="updateMedicationID" value="{{ roar_id | safe}}">
+					<b>GO TO UPDATE MEDICATION LIST</b>
+				</button>
+				</form>
+			
+				<hr>
+				<br>
+			
+			</div>
+
+			{% else %}
+			{% endif %}
+			
+			
+			<!-- create form -->
+			<form action="/commit_survey_data" method="post" id="surveyData">
+				
+				
+			<!-- Start for loop to cycle through hqol questions and post -->
+			{% for question in surveyItems %}
+
+
+			<!-- HEALTH BEHAVIORS -->
+
+			<!-- set titling and section breaks -->
+				
+			{% if question[1].split("_")[0] == "hb" %}
+				
+			{% if question[1] == "hb_1" %}
+
+			<div style="font-size: 20px"><strong>1. <u>HEALTH BEHAVIORS</u></strong></div>
+				
+				<br>
+				
+				<strong>The following statements are about your health behaviors. Please state whether you have been doing the following
+				health behaviors consistently in the last 6 months.</strong>
+				
+				<br>
+				<br>
+				
+				{% else %}
+				{% endif %}
+
+			<b>{{ question[1].split("_")[1] }}. {{ question[2] }}</b>
+				
+				<br>
+				<br>
+				
+					{% for item in question[3].split(';') %}
+						
+					<div class="custom-control custom-radio custom-control">
+						<div style="padding-right: 2em"> 
+							<input type="radio" class="custom-control-input" id="{{ question[1] }}_{{ item }}" name="{{ question[1] }}" value="{{ item }}" required></input>
+							<label class="custom-control-label" for="{{ question[1] }}_{{ item }}" >{{ item }}</label>
+						</div>
+					</div>
+						
+					{% endfor %}
+					
+					<div class="custom-control custom-radio custom-control">
+							<input type="radio" class="custom-control-input" id="{{ question[1] }}_dna" name="{{ question[1] }}" value="Does not apply"></input>
+							<label class="custom-control-label" for="{{ question[1] }}_dna" >Does not apply</label>
+					</div>
+					
+				<br>
+				<br>
+				
+			{% if question[1] == "hb_11" %} <hr> <br> {% else %} {% endif %}
+				
+			{% else %}
+			{% endif %}
+				
+			
+			
+			<!-- HQOL -->
+				
+			<!-- set titling and section breaks -->
+				
+			{% if question[1].split("_")[0] == "hqol" %}
+				
+				{% if question[1] == "hqol_1" %}
+
+				<div style="font-size: 20px"><strong>{% if survey_type == 'baseline' %} 1. {% else %} 2. {% endif %} <u>SELF-RELATED HEALTH AND QUALITY OF LIFE</u></strong></div>
+				
+				<br>
+				
+				<strong>This information will help keep track of how you feel and how well you are able to do your usual activities.
+				If you are unsure how to answer a question, please give the best answer you can.</strong>
+				
+				<br>
+				<br>
+				
+				{% else %}
+				{% endif %}
+				
+					
+				{% if question[1] == "hqol_2a" %}
+					
+				<strong>2. The following questions are about activities you might do during a <u>typical day</u>. 
+				Does your health now limit you in these activities? If so, how much?</strong>
+				
+				<br>
+				<br>
+					
+				{% else %}
+				{% endif %}
+				
+				
+				{% if question[1] == "hqol_3a" %}
+					
+				<strong>3. During the <u>past 4 weeks</u>, have you had any of the following problems with your work
+				or other regular daily activities as a result of <u>your physical health</u>?</strong>
+				
+				<br>
+				<br>
+					
+				{% else %}
+				{% endif %}
+				
+				
+				{% if question[1] == "hqol_4a" %}
+					
+				<strong>4. During the <u>past 4 weeks</u>, have you had any of the following problems with your work
+				or other regular daily activities as a result of <u>any emotional problems</u> (such as
+				feeling depressed or anxious)?</strong>
+				
+				<br>
+				<br>
+					
+				{% else %}
+				{% endif %}
+				
+				
+				{% if question[1] == "hqol_6a" %}
+				
+				<strong>These questions are about how you feel and how things have been with you during the past 4 weeks. 
+				For each question, please give the one answer that comes closest to the way you have been feeling.</strong>
+				
+				<br>
+				<br>
+				
+				<strong>6. How much of the time during the <u>past 4 weeks</u>:</strong>
+				
+				<br>
+				<br>
+					
+				{% else %}
+				{% endif %}
+				
+				<strong>{{ question[1].split("_")[1] }}. {{ question[2] }}</strong>
+				
+				<br>
+				<br>
+				
+					{% for item in question[3].split(';') %}
+						
+					<div class="custom-control custom-radio custom-control"> <!-- can add -inline to make response options horizontal -->
+						<div style="padding-right: 2em"> 
+							<input type="radio" class="custom-control-input" id="{{ question[1] }}_{{ item }}" name="{{ question[1] }}" value="{{ item }}" required></input>
+							<label class="custom-control-label" for="{{ question[1] }}_{{ item }}" >{{ item }}</label>
+						</div>
+					</div>
+						
+					{% endfor %}
+					
+					<div class="custom-control custom-radio custom-control">
+							<input type="radio" class="custom-control-input" id="{{ question[1] }}_dna" name="{{ question[1] }}" value="Does not apply"></input>
+							<label class="custom-control-label" for="{{ question[1] }}_dna" >Does not apply</label>
+					</div>
+					
+				<br>
+				<br>
+
+			{% else %}
+			{% endif %}
+
+				
+
+				
+			<!-- Patient activation -->			
+				
+			<!-- set titling and section breaks -->
+				
+			{% if question[1].split("_")[0] == "pa" %}
+				
+				{% if question[1] == "pa_1" %}
+
+				<hr>
+				<br>
+
+				<div style="font-size: 20px;"><strong>{% if survey_type == 'baseline' %} 2. {% else %} 3. {% endif %} <u>PATIENT ACTIVATION</u></strong></div>
+				
+				<br>
+				
+				<strong>The following are statements that people sometimes make when they talk about their health. Please
+				indicate how much you disagree or agree with each statement as it applies to you personally. Your
+				answers should be what is true for you and not just what you think others expect of you. Your choices
+				are <em>Strongly Disagree</em>, <em>Disagree</em>, <em>Agree</em>, or <em>Strongly Agree</em>. If the
+				statement does not apply to you, please say <em>Does Not Apply</em>.</strong>
+				
+				<br>
+				<br>
+				
+				{% else %}
+				{% endif %}
+				
+				<b>{{ question[1].split("_")[1] }}. {{ question[2] }}</b>
+				
+				<br>
+				<br>
+				
+					{% for item in question[3].split(';') %}
+						
+					<div class="custom-control custom-radio custom-control">
+						<div style="padding-right: 3em"> 
+							<input type="radio" class="custom-control-input" id="{{ question[1] }}_{{ item }}" name="{{ question[1] }}" value="{{ item }}" required></input>
+							<label class="custom-control-label" for="{{ question[1] }}_{{ item }}" >{{ item }}</label>
+						</div>
+					</div>
+						
+					{% endfor %}
+					
+				<br>
+				<br>
+
+			{% else %}
+			{% endif %}
+			
+			
+			
+			<!-- Genetic testing -->			
+				
+			<!-- set titling and section breaks -->
+				
+			{% if question[1].split("_")[0] == "gt" %}
+				
+				{% if question[1] == "gt_1" %}
+
+				<hr>
+				<br>
+
+				<div style="font-size: 20px;"><strong>4. <u>GENETIC TESTING</u></strong></div>
+				
+				<br>
+				
+				<strong>The following questions ask about genetic testing in you and your family members.</strong>
+				
+				<br>
+				<br>
+				
+				{% if randStatus[0] == "DELAYED" %} 
+				
+				<strong>You were assigned to the group of participants who will recieve a genetic test result related to heart
+				disease after completing this survey.</strong>
+				
+				<br>
+				<br>
+				
+				<b>{{ question[1].split("_")[1] }}. {{ question[2] }}</b>
+				
+				<br>
+				<br>
+				
+					{% for item in question[3].split(';') %}
+						
+					<div class="custom-control custom-radio custom-control">
+						<div style="padding-right: 3em"> 
+							<input type="radio" class="custom-control-input" id="{{ question[1] }}_{{ item }}" name="{{ question[1] }}" value="{{ item }}" required></input>
+							<label class="custom-control-label" for="{{ question[1] }}_{{ item }}" >{{ item }}</label>
+						</div>
+					</div>
+						
+					{% endfor %}
+
+					<div class="custom-control custom-radio custom-control">
+							<input type="radio" class="custom-control-input" id="{{ question[1] }}_dna" name="{{ question[1] }}" value="Does not apply"></input>
+							<label class="custom-control-label" for="{{ question[1] }}_dna" >Does not apply</label>
+					</div>
+					
+				<br>
+				<br>
+				
+				{% else %}
+				
+				<strong>You received a genetic test related to cholesterol and heart disease as part of this study. Thinking
+				about that result, have you shared your results with any of the following family members? You may indicate
+				<em>Yes</em>, <em>No</em>, or <em>I don't currently have this family member</em>.</strong>
+				
+				<br>
+				<br>
+				
+				{% endif %}
+				
+				{% else %}
+				{% endif %}
+				
+				
+				{% if question[1] == "gt_2" and randStatus[0] == "DELAYED" %}
+				
+				<b>{{ question[1].split("_")[1] }}. {{ question[2] }}</b>
+				
+				<br>
+				<br>
+						
+					<input type="text" size="60" id="{{ question[1] }}_{{ item }}" name="{{ question[1] }}"></input>
+					
+				<br>
+				<br>
+				<br>
+				
+				<strong>Did any of the following family members have genetic testing in the last 6 months? You may say
+				<em>Yes</em>, <em>No</em>, or <em>I don't currently have this family member</em>.</strong>
+				
+				<br>
+				<br>
+
+				{% else %}
+				{% endif %}
+				
+				
+				{% if question[1] == "gt_1" or question[1] == "gt_2" %}
+
+
+				{% else %}
+				
+				<b>{{ question[1].split("_")[1][1:] }}. {{ question[2] }}</b>
+				
+				<br>
+				<br>
+				
+				
+					{% for item in question[3].split(';') %}
+					
+					<div class="custom-control custom-radio custom-control">
+						<div style="padding-right: 3em"> 
+							<input type="radio" class="custom-control-input" id="{{ question[1] }}_{{ item }}" name="{{ question[1] }}" value="{{ item }}" required></input>
+							<label class="custom-control-label" for="{{ question[1] }}_{{ item }}" >{{ item }}</label>
+						</div>
+					</div>
+						
+					{% endfor %}
+					
+					<br>
+					
+					{% if randStatus[0] == "DELAYED" %}
+					
+					If Yes, what kind of genetic testing did they have?
+					
+					<input type="text" size="60" id="{{ question[1] }}_test" name="{{ question[1] }}_test"></input>
+					
+					{% else %} <!-- immediate -->
+					
+					If Yes, number of family members you have shared with:
+					
+					<input type="number" size="5" id="{{ question[1] }}_num_shared" name="{{ question[1] }}_num_shared" min="0"></input>
+					
+					<br>
+					<br>
+					
+					If Yes, has this person had genetic testing for cholesterol or heart disease risk himself/herself?
+
+					<br>
+					<br>
+
+					<div class="custom-control custom-radio custom-control-inline">
+						<div style="padding-right: 3em"> 
+							<input type="radio" class="custom-control-input" id="{{ question[1] }}_cascade_yes" name="{{ question[1] }}_cascade" value="Yes"></input>
+							<label class="custom-control-label" for="{{ question[1] }}_cascade_yes" >Yes</label>
+						</div>	
+						<div style="padding-right: 3em">
+							<input type="radio" class="custom-control-input" id="{{ question[1] }}_cascade_no" name="{{ question[1] }}_cascade" value="No"></input>
+							<label class="custom-control-label" for="{{ question[1] }}_cascade_no" >No</label>
+						</div>
+						<div style="padding-right: 3em">
+							<input type="radio" class="custom-control-input" id="{{ question[1] }}_cascade_idk" name="{{ question[1] }}_cascade" value="I don't know"></input>
+							<label class="custom-control-label" for="{{ question[1] }}_cascade_idk" >I don't know</label>
+						</div>
+					</div>
+					
+					
+					{% endif %}
+					
+				<br>
+				<br>
+				
+				{% endif %}
+				
+				
+			{% else %}
+			{% endif %}
+
+
+
+			<!-- GENETIC PREFERENCES AND FACToR - IMMEDIATE ONLY -->
+			
+			{% if randStatus[0] == "IMMEDIATE" or randStatus[0] == "PILOT" %}
+
+			<!-- PREFERENCES FOR GENETIC TESTING -->
+
+			<!-- set titling and section breaks -->
+				
+			{% if question[1].split("_")[0] == "pref" %}
+				
+				{% if question[1] == "pref_1" %}
+				
+				<hr>
+				<br>
+
+				<div style="font-size: 20px"><strong>5. <u>PREFERENCES FOR RECEIVING GENETIC TEST RESULTS</u></strong></div>
+				
+				<br>
+				
+				<strong>In this study, the genetic counselor on the research team contacted you first about a genetic test result identified
+				in your Million Veteran Program blood sample. He/She then helped you get clinical genetic testing and then shared those
+				results with you and your primary care provider. The following questions ask about your preferences for receiving results
+				like these.</strong>
+				
+				<br>
+				<br>
+				
+				{% else %}
+				{% endif %}
+
+				<b>{{ question[1].split("_")[1] }}. {{ question[2] }}</b>
+				
+				<br>
+				<br>
+				
+					{% for item in question[3].split(';') %}
+						
+					<div class="custom-control custom-radio custom-control">
+						<div style="padding-right: 2em"> 
+							<input type="radio" class="custom-control-input" id="{{ question[1] }}_{{ item }}" name="{{ question[1] }}" value="{{ item }}" required></input>
+							<label class="custom-control-label" for="{{ question[1] }}_{{ item }}" >{{ item }}</label>
+						</div>
+					</div>
+						
+					{% endfor %}
+					
+					<div class="custom-control custom-radio custom-control">
+							<input type="radio" class="custom-control-input" id="{{ question[1] }}_dna" name="{{ question[1] }}" value="Does not apply"></input>
+							<label class="custom-control-label" for="{{ question[1] }}_dna" >Does not apply</label>
+					</div>
+					
+					<br>
+					
+					Preference if Other: <input type="text" size="40" id="{{ question[1] }}_num_shared" name="{{ question[1] }}_num_shared"></input>
+					
+					
+				<br>
+				<br>
+				
+			{% else %}
+			{% endif %}
+				
+			
+			
+			
+			<!-- FACToR --> 			
+				
+			<!-- set titling and section breaks -->
+				
+			{% if question[1].split("_")[0] == "factor" %}
+				
+				{% if question[1] == "factor_1" %}
+
+				<hr>
+				<br>
+																									
+				<div style="font-size: 20px;"><strong>6. <u>FEELINGS ABOUT GENETIC TESTING</u></strong></div>
+				
+				<br>
+				
+				<strong>The following questions ask about how you felt after receiving your genetic test results. Please indicate how
+				much you had each specific feeling in the past week for each question. The response options for each question are:
+				<em>Not at all</em>, <em>A little</em>, <em>Somewhat</em>, <em>A good deal</em>, or <em>A great deal</em>.</strong>
+				
+				<br>
+				<br>
+				
+				{% else %}
+				{% endif %}
+				
+				<b>{{ question[1].split("_")[1] }}. {{ question[2] }}</b>
+				
+				<br>
+				<br>
+				
+					{% for item in question[3].split(';') %}
+					
+					<div class="custom-control custom-radio custom-control">
+						<div style="padding-right: 3em"> 
+							<input type="radio" class="custom-control-input" id="{{ question[1] }}_{{ item }}" name="{{ question[1] }}" value="{{ item }}" required></input>
+							<label class="custom-control-label" for="{{ question[1] }}_{{ item }}" >{{ item }}</label>
+						</div>
+					</div>
+						
+					{% endfor %}
+					
+					<div class="custom-control custom-radio custom-control">
+							<input type="radio" class="custom-control-input" id="{{ question[1] }}_dna" name="{{ question[1] }}" value="Does not apply"></input>
+							<label class="custom-control-label" for="{{ question[1] }}_dna" >Does not apply</label>
+					</div>
+					
+				<br>
+				<br>
+
+			{% else %}
+			{% endif %}
+				
+			
+			
+			{% else %}
+			{% endif %}
+			
+			
+			
+
+			<!-- Health Care and Healthcare utilization -->
+				
+			<!-- set titling and section breaks -->
+				
+			{% if question[1].split("_")[0] == "hc" %}
+				
+				{% if question[1] == "hc_1a" %}
+
+				<hr>
+				<br>
+																									
+				<div style="font-size: 20px;"><strong>{% if randStatus[0] == 'DELAYED' %} 5. {% else %} 7. {% endif %} <u>HEALTH CARE AND HEALTHCARE UTILIZATION</u></strong></div>
+				
+				<br>
+				
+				<strong>1. The following statements are about the medical care you've recieved since enrolling in the study.
+				The statements include some medical tests and procedures. Please indicate if you've had any of these
+				tests or procedures in the last 6 months. You may respond <em>Yes</em>, <em>No</em>, 
+				or <em>I'm not sure/I don't know</em>.</strong>
+				
+				<br>
+				<br>
+				
+				{% else %}
+				{% endif %}
+				
+
+				{% if question[1] == "hc_2a" %}
+				
+				<strong>2. The following statements include some types of healthcare providers. Please indicate if you've seen
+				any of the following providers in the last 6 months. You may respond <em>Yes</em>, <em>No</em>, 
+				or <em>I'm not sure/I don't know</em>.</strong>
+				
+				<br>
+				<br>
+				
+				{% else %}
+				{% endif %}
+				
+
+				{% if question[1].split("_")[1].startswith("5") %}
+				
+				<div id="{{ question[1] }}_div" style="display: none;">
+
+
+
+				</div>	
+				
+				{% elif question[1].split("_")[1].startswith("4") %}
+
+				<div id="{{ question[1] }}_div" style="display: none;">
+					
+				<b>{{ question[1].split("_")[1] }}. {{ question[2] }}</b>
+				
+				<br>
+				<br>
+					
+				{% for item in question[3].split(';') %}
+					
+				<div class="custom-control custom-radio">
+					<div style="padding-right: 3em"> 
+						<input type="radio" class="custom-control-input" id="{{ question[1] }}_{{ item }}" name="{{ question[1] }}" value="{{ item }}" {% if question[1] == "hc_4" %} onclick="showadmissions()" {% else %} {% endif %}></input>
+						<label class="custom-control-label" for="{{ question[1] }}_{{ item }}" >{{ item }}</label>
+					</div>
+				</div>
+				
+				{% endfor %}
+				
+				</div>
+									
+				{% else %} 
+					
+				<b>{{ question[1].split("_")[1] }}. {{ question[2] }}</b>
+				
+				<br>
+				<br>
+					
+				{% for item in question[3].split(';') %}
+					
+				<div class="custom-control custom-radio">
+					<div style="padding-right: 3em"> 
+						<input type="radio" class="custom-control-input" id="{{ question[1] }}_{{ item }}" name="{{ question[1] }}" value="{{ item }}" required></input>
+						<label class="custom-control-label" for="{{ question[1] }}_{{ item }}" >{{ item }}</label>
+					</div>
+				</div>
+				
+					
+				{% endfor %}
+					
+					
+				{% endif %} 		
+					
+				<br>
+					
+				{% if question[1].split("_")[1].startswith("1") %}
+					
+				If Yes, how many of these did you have in the last 6 months?
+					
+				<input type="number" size="5" id="{{ question[1] }}_num_shared" name="{{ question[1] }}_num_procedures" min="0"></input>
+					
+				<br>
+				<br>
+					
+				Notes: <input type="text" size="80" id="{{ question[1] }}_num_shared" name="{{ question[1] }}_num_shared"></input>
+
+				<br>
+				<br>
+				<br>
+					
+				{% elif question[1].split("_")[1].startswith("2") %} 
+					
+				If Yes, how many times did you see this kind of provider in the last 6 months?
+					
+				<input type="number" size="5" id="{{ question[1] }}_num_shared" name="{{ question[1] }}_num_procedures" min="0"></input>
+					
+				<br>
+				<br>
+					
+				Notes: <input type="text" size="80" id="{{ question[1] }}_num_shared" name="{{ question[1] }}_num_shared"></input>
+
+				<br>
+				<br>
+
+				{% else %}
+				{% endif %}
+					
+					
+			{% else %}
+			{% endif %}
+				 
+					
+
+			<!-- Beliefs About Medicines -->
+				
+			<!-- set titling and section breaks -->
+				
+			{% if question[1].split("_")[0] == "bmq" %}
+				
+				{% if question[1] == "bmq_1" %}
+
+				<hr>
+				<br>
+																								
+				<div style="font-size: 20px;"><strong>{% if survey_type == 'baseline' %} 3. {% elif survey_type == "eos" and randStatus[0] == "DELAYED" %} 6. {% else %} 8. {% endif %} <u>BELIEFS ABOUT MEDICINES</u></strong></div>
+				
+				<br>
+				
+				The following are statements related to your throughs about medications in general. For each of
+				the following statements, please indicate whether you <em>Strongly Disagree</em>, <em>Disagree</em>, 
+				<em>Neither Agree Nor Disagree</em>, <em>Agree</em>, or <em>Strongly Agree</em>.
+				
+				<br>
+				<br>
+				
+				{% else %}
+				{% endif %}
+				
+				<b>{{ question[1].split("_")[1] }}. {{ question[2] }}</b>
+				
+				<br>
+				<br>
+				
+					{% for item in question[3].split(';') %}
+					
+					<div class="custom-control custom-radio custom-control">
+						<div style="padding-right: 3em"> 
+							<input type="radio" class="custom-control-input" id="{{ question[1] }}_{{ item }}" name="{{ question[1] }}" value="{{ item }}" required></input>
+							<label class="custom-control-label" for="{{ question[1] }}_{{ item }}" >{{ item }}</label>
+						</div>
+					</div>
+						
+					{% endfor %}
+					
+					<div class="custom-control custom-radio custom-control">
+							<input type="radio" class="custom-control-input" id="{{ question[1] }}_dna" name="{{ question[1] }}" value="Does not apply"></input>
+							<label class="custom-control-label" for="{{ question[1] }}_dna" >Does not apply</label>
+					</div>
+					
+				<br>
+				<br>
+
+			{% else %}
+			{% endif %}
+				
+				
+				
+			<!-- Demographics - Baseline Only -->
+				
+			<!-- set titling and section breaks -->
+				
+			{% if question[1].split("_")[0] == "dem" %}
+				
+				{% if question[1] == "dem_1" %}
+
+				<hr>
+				<br>
+
+				<div style="font-size: 20px;"><strong>{% if survey_type == 'baseline' %} 4. {% else %} {% endif %} <u>DEMOGRAPHICS</u></strong></div>
+				
+				<br>
+				
+				{% else %}
+				{% endif %}
+				
+				<b>{{ question[1].split("_")[1] }}. {{ question[2] }}</b>
+				
+				<br>
+				<br>
+				
+					{% for item in question[3].split(';') %}
+						
+					<div class="custom-control custom-switch">
+						<input type="checkbox" class="custom-control-input" id="{{ question[1] }}_{{ item }}" name="{{ question[1] }}_{{ loop.index }}" value="{{ item }}"></input>
+						<label class="custom-control-label" for="{{ question[1] }}_{{ item }}" >{{ item }}</label>
+					</div>
+						
+					{% endfor %}
+					
+				<br>
+				<br>
+
+			{% else %}
+			{% endif %} 
+			
+				
+				
+			<!-- end for loop of questions -->
+			{% endfor %}
+			
+			
+			<hr>
+			<br>
+			
+			<div class="form-group row" id="formrow">
+				<label for="notes" class="control-label col-md-1"><b>Survey notes:&#160&#160</b></label>
+				<div class="col-md-11">
+					<textarea autocomplete="off" class="form-control" rows="3" id="notes" name="notes"></textarea>
+				</div>
+			</div>
+
+			<br>
+			<br>
+
+			<div class="form-group row" id="formrow">
+				<label for="timeSpent" class="control-label col-md-1"><b>Time Spent<br>(in minutes):&#160&#160</b></label>
+				<div class="col-md-2">
+					<input autocomplete="off" class="form-control" id="timeSpent" name="timeSpent" type="number" min="0" max="90" required>
+				</div>
+			</div>
+			
+			<div class="form-group row" id="formrow">
+				<label for="surveyDate" class="control-label col-md-1"><b>Survey Date:&#160&#160</b></label>
+				<div class="col-md-2">
+					<input autocomplete="off" class="form-control" id="surveyDate" name="surveyDate" type="date" min="2020-01-01" max="2024-01-01" required>
+				</div>
+			</div>
+			
+
+			<div class="form-group row" id="formrow" style="display: none">
+				<input autocomplete="off" class="form-control" id="surveyType" name="surveyType" type="text" value={{ survey_type }}>
+			</div>
+
+			<hr>
+			<br>
+			
+			<button type="submit" class="btn btn-primary btn-block" name="submitSurveyDataID" value="{{ roar_id | safe }}">
+				<b>Submit {{ survey_type.upper() }} Survey Data</b>
+			</button>	
+			
+		</form>
+
+
+
+
+
+		</div>
+		
+	</div>	
+	
+</div>
+
+
+
+
+<script>
+	
+// Healhcare utilization toggling
+
+
+document.addEventListener("click", function(event){
+	
+	if (document.getElementById("hc_3_Yes").checked) {
+		document.getElementById("hc_4_div").style.display = "block";
+		document.getElementById("hc_5_div").style.display = "block";
+	}
+	
+	else {
+		document.getElementById("hc_4_div").style.display = "none";
+		document.getElementById("hc_5_div").style.display = "none";
+	}
+	
+	
+});
+
+
+// Display admissions values
+
+var hosptial_stays = 0;
+
+function showadmissions() {
+	
+	if (document.getElementById("hc_4_1 time").checked) {
+		hospital_stays = 1;
+	}
+	
+	if (document.getElementById("hc_4_2 times").checked){
+		hospital_stays = 2;
+	}
+
+	if (document.getElementById("hc_4_3 or more times").checked){
+		hospital_stays = 3;
+	}
+	
+	var admission_div = document.getElementById("hc_5_div");
+	
+	var admission_filler = "";
+	
+	for (var i=1; i <= hospital_stays; i++) {
+		
+		admission_filler +=  "<b>Admission " + i + ":</b>" +
+					
+							"<br>" +
+							"<br>" +
+
+							"Please provide us with the reason for this hospitalization: <input type='text' size='40' id='hc_5_hosp_reason" + i + "' name='hc_5_hosp_reason" + i + "'></input>" +
+					
+							"<br>" +
+							"<br>" +
+					
+							"How many days did you spend in the hospital?: <input type='number' size='5' id='hc_5_hosp_days" + i + "' name='hc_5_hosp_days" + i + "' min='0'></input>" +
+					
+							"<br>" +
+							"<br>" +
+					
+							"Did you spend any time in the ICU?" +
+					
+							"<br>" +
+							"<br>" +
+					
+							"<div class='custom-control custom-radio custom-control'>" +
+								"<div style='padding-right: 3em'>" + 
+									"<input type='radio' class='custom-control-input' id='hc_5_icu_Yes" + i + "' name='hc_5_icu" + i + "' value='Yes'></input>" +
+									"<label class='custom-control-label' for='hc_5_icu_Yes" + i + "' >Yes</label>" +
+								"</div>" +
+							"</div>" +
+							"<div class='custom-control custom-radio custom-control'>" +
+								"<div style='padding-right: 3em'>" + 
+									"<input type='radio' class='custom-control-input' id='hc_5_icu_No" + i + "' name='hc_5_icu" + i + "' value='No'></input> " +
+									"<label class='custom-control-label' for='hc_5_icu_No" + i + "' >No</label>" +
+								"</div>" +
+							"</div>" +
+					
+							"<br>" +
+
+							"If yes, how many days?: <input type='number' size='5' id='hc_5_icu_days" + i + "' name='hc_5_icu_days" + i + "' min='0'></input>" +
+					
+							"<br>" +
+							"<br>"
+		
+	
+	admission_div.innerHTML = admission_filler;
+
+	}
+	
+	
+};
+
+
+
+
+
+
+</script>
+
+
+{% endblock %}
+
+
+
+

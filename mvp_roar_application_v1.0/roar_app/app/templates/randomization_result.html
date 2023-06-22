@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Randomization result
+{% endblock %}
+{% block header %}
+
+<div style="font-size: 36px;">
+		
+	<br>
+		
+	<b><u>Randomization result for {{ roar_id | safe }}</u></b>:
+	
+	<br>
+	<br>
+	
+	<p style="color: red;"><b>{{ randStatus | safe }}</b></p>
+
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+	<br>
+	<br>
+
+<form action="/participant_detail/{{ roar_id | safe}}" method="post">
+	<button type="submit" class="btn btn-primary" name="chartReviewID" value="{{ roar_id | safe}}">
+		<b>Return to participant detail</b>
+	</button>
+</form>
+
+{% endblock %}

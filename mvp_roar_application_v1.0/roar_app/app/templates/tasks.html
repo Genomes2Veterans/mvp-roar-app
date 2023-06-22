@@ -1,0 +1,808 @@
+{% extends "layout.html" %}
+{% block title %}
+
+Tasks: {{ today() }}
+
+{% endblock %}
+{% block header %}
+
+<div class="row" style="font-size: 24px;">
+
+	<div class="col-9">
+		
+		<b><u>TASKS: {{ strftime(today(), "%B %d, %Y").upper() }}</u></b>
+	
+	</div>
+
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+<!-- Set counters for patient lists -->
+
+{% set counter = {
+	'counterCR': 1,
+	'counterRL': 1,
+	'counterCC': 1,
+	'counterPed': 1,
+	'counterBLSurv': 1,
+	'counterBLSpec': 1,
+	'counterRand': 1,
+	'counterGR': 1,
+	'counterRR': 1,
+	'counterRRdoc': 1,
+	'counterEOSpec': 1,
+	'counterEOSurv': 1,
+	'counterINC': 1} %}
+
+<!-- Create macro for counters -->
+
+{% macro increment(dct, key, inc=1) %}
+	{% if dct.update({key: dct[key] + inc}) %} {% endif %}
+{% endmacro %}
+
+<!-- Page body -->
+
+<form action="/participants" method="post">
+
+<div class="row">
+		
+	<div class="col-9">
+	
+	<br>
+	
+		<div id="chartReviewDiv" name="task">
+		
+			<div style="font-size: 20px;"><b>CHART REVIEW:</b></div>
+			
+			<table class="table table-hover table-bordered" id="chartTable">
+				<caption> </caption>
+					<thead  class="thead-dark">
+						<tr>
+								<th>#</th>
+								<th>ROAR ID</th>
+								<th>MVP CORE ID</th>
+								<th>SSN</th>
+								<th>FIRST NAME</th>	
+								<th>LAST NAME</th>
+								<th>CORE RELEASE DATE</th>	
+						</tr>
+					</thead>
+					<tbody>
+						{% for task in tasks %}
+							<tr>
+							{% if task.chartReview == None %}
+						
+								<td class="align-middle">{{ counter['counterCR'] }}</td>
+								<td class="align-middle">
+									<button type="submit" class="btn btn-primary" name="userIdSelect" value="{{ task.roarid | safe }}">
+										{{ task.roarid }}
+									</button>
+								</td>
+								<td class="align-middle">{{ task.mvpcoreid }}</td>
+								<td class="align-middle">{{ task.ssn }}</td>
+								<td class="align-middle">{{ task.firstname }}</td>
+								<td class="align-middle">{{ task.lastname }}</td>		
+								<td class="align-middle">{{ task.corereleasedate }}</td>																																														
+							
+							{{ increment(counter, 'counterCR') }}
+							
+							{% else %}
+							{% endif %}
+						
+							</tr>
+						{% endfor %}
+					</tbody>
+			</table>
+
+		</div>
+
+		<div id="recruitLetterDiv" name="task">
+		
+			<div style="font-size: 20px;"><b>MAIL RECRUITMENT LETTER:</b></div>
+
+			<table class="table table-hover table-bordered" id="LetterTable">
+				<caption> </caption>
+					<thead  class="thead-dark">
+						<tr>
+							<th>#</th>
+								<th>ROAR ID</th>
+								<th>MVP CORE ID</th>
+								<th>SSN</th>
+								<th>FIRST NAME</th>	
+								<th>LAST NAME</th>
+								<th>CHART REVIEW DATE</th>		
+						</tr>
+					</thead>
+					<tbody>
+						{% for task in tasks %}
+							<tr>
+							{% if task.chartReview != None and task.recruitmentLetter == None %}
+						
+								<td class="align-middle">{{ counter['counterRL'] }}</td>
+								<td class="align-middle">
+									<button type="submit" class="btn btn-primary" name="userIdSelect" value="{{ task.roarid | safe }}">
+										{{ task.roarid }}
+									</button>
+								</td>
+								<td class="align-middle">{{ task.mvpcoreid }}</td>
+								<td class="align-middle">{{ task.ssn }}</td>
+								<td class="align-middle">{{ task.firstname }}</td>
+								<td class="align-middle">{{ task.lastname }}</td>			
+								<td class="align-middle">{{ task.chartReview }}</td>
+
+							{{ increment(counter, 'counterRL') }}																																												
+							
+							{% else %}
+							{% endif %}
+						
+							</tr>
+						{% endfor %}
+					</tbody>
+			</table>
+
+		</div>
+
+		<div id="consentCallDiv" name="task">
+		
+			<div style="font-size: 20px;"><b>CONSENT CALL:</b></div>
+
+			<table class="table table-hover table-bordered" id="consentTable">
+				<caption> </caption>
+					<thead  class="thead-dark">
+						<tr>
+							<th>#</th>
+								<th>ROAR ID</th>
+								<th>MVP CORE ID</th>
+								<th>SSN</th>
+								<th>FIRST NAME</th>	
+								<th>LAST NAME</th>
+								<th>RECRUITMENT LETTER DATE</th>
+								<th>FIRST CALL DATE</th>
+								<th>LAST CALL/ATTEMPT</th>		
+						</tr>
+					</thead>
+					<tbody>
+						{% for task in tasks %}
+							<tr>
+							{% if task.recruitmentLetter != None and task.consented == None %}
+						
+								<td class="align-middle">{{ counter['counterCC'] }}</td>
+								<td class="align-middle">
+									<button type="submit" class="btn btn-primary" name="userIdSelect" value="{{ task.roarid | safe }}">
+										{{ task.roarid }}
+									</button>
+								</td>
+								<td class="align-middle">{{ task.mvpcoreid }}</td>
+								<td class="align-middle">{{ task.ssn }}</td>
+								<td class="align-middle">{{ task.firstname }}</td>
+								<td class="align-middle">{{ task.lastname }}</td>		
+								<td class="align-middle">{{ task.recruitmentLetter }}</td>		
+								<td class="align-middle">{{ task.recruitmentLetter + timedelta(days=14) }}</td>
+								<td class="align-middle">{{ task.lastcontact }}</td>
+																																											
+							{{ increment(counter, 'counterCC') }}
+							
+							{% else %}
+							{% endif %}
+						
+							</tr>
+						{% endfor %}
+					</tbody>
+			</table>
+
+		</div>
+
+		<div id="pedigreeDiv" name="task">
+		
+			<div style="font-size: 20px;"><b>COLLECT PEDIGREE:</b></div>
+
+			<table class="table table-hover table-bordered" id="LetterTable">
+				<caption> </caption>
+					<thead  class="thead-dark">
+						<tr>
+							<th>#</th>
+								<th>ROAR ID</th>
+								<th>MVP CORE ID</th>
+								<th>SSN</th>
+								<th>FIRST NAME</th>	
+								<th>LAST NAME</th>
+								<th>CONSENT DATE</th>
+								<th>LAST CALL/ATTEMPT</th>		
+						</tr>
+					</thead>
+					<tbody>
+						{% for task in tasks %}
+							<tr>
+							{% if task.consenteddate != None and task.pedigree == None %}
+						
+								<td class="align-middle">{{ counter['counterPed'] }}</td>
+								<td class="align-middle">
+									<button type="submit" class="btn btn-primary" name="userIdSelect" value="{{ task.roarid | safe }}">
+										{{ task.roarid }}
+									</button>
+								</td>
+								<td class="align-middle">{{ task.mvpcoreid }}</td>
+								<td class="align-middle">{{ task.ssn }}</td>
+								<td class="align-middle">{{ task.firstname }}</td>
+								<td class="align-middle">{{ task.lastname }}</td>			
+								<td class="align-middle">{{ task.consenteddate }}</td>
+								<td class="align-middle">{{ task.lastcontact }}</td>
+
+							{{ increment(counter, 'counterPed') }}																																												
+							
+							{% else %}
+							{% endif %}
+						
+							</tr>
+						{% endfor %}
+					</tbody>
+			</table>
+
+		</div>
+
+		<div id="baselineSurveyDiv" name="task">
+		
+			<div style="font-size: 20px;"><b>BASELINE SURVEY:</b></div>
+
+			<table class="table table-hover table-bordered" id="surveyTable">
+				<caption> </caption>
+					<thead  class="thead-dark">
+						<tr>
+							<th>#</th>
+								<th>ROAR ID</th>
+								<th>MVP CORE ID</th>
+								<th>SSN</th>
+								<th>FIRST NAME</th>	
+								<th>LAST NAME</th>
+								<th>CONSENT DATE</th>
+								<th>LAST CALL/ATTEMPT</th>		
+						</tr>
+					</thead>
+					<tbody>
+						{% for task in tasks %}
+							<tr>
+							{% if task.consented == 1 and task.baselineSurvey == None %}
+						
+								<td class="align-middle">{{ counter['counterBLSurv'] }}</td>
+								<td class="align-middle">
+									<button type="submit" class="btn btn-primary" name="userIdSelect" value="{{ task.roarid | safe }}">
+										{{ task.roarid }}
+									</button>
+								</td>
+								<td class="align-middle">{{ task.mvpcoreid }}</td>
+								<td class="align-middle">{{ task.ssn }}</td>
+								<td class="align-middle">{{ task.firstname }}</td>
+								<td class="align-middle">{{ task.lastname }}</td>				
+								<td class="align-middle">{{ task.consenteddate }}</td>
+								<td class="align-middle">{{ task.lastcontact }}</td>
+
+							{{ increment(counter, 'counterBLSurv') }}																																												
+							
+							{% else %}
+							{% endif %}
+						
+							</tr>
+						{% endfor %}
+					</tbody>
+			</table>
+
+		</div>
+
+		<div id="specimenCollectionDiv" name="task">
+		
+			<div style="font-size: 20px;"><b>BASELINE SPECIMEN COLLECTION:</b></div>
+
+			<table class="table table-hover table-bordered" id="specimenTable">
+				<caption> </caption>
+					<thead  class="thead-dark">
+						<tr>
+							<th>#</th>
+								<th>ROAR ID</th>
+								<th>MVP CORE ID</th>
+								<th>SSN</th>
+								<th>FIRST NAME</th>	
+								<th>LAST NAME</th>
+								<th>CONSENT DATE</th>
+								<th>LAST CALL/ATTEMPT</th>		
+						</tr>
+					</thead>
+					<tbody>
+						{% for task in tasks %}
+							<tr>
+							{% if task.consented == 1 and task.specimen == None %}
+						
+								<td class="align-middle">{{ counter['counterBLSpec'] }}</td>
+								<td class="align-middle">
+									<button type="submit" class="btn btn-primary" name="userIdSelect" value="{{ task.roarid | safe }}">
+										{{ task.roarid }}
+									</button>
+								</td>
+								<td class="align-middle">{{ task.mvpcoreid }}</td>
+								<td class="align-middle">{{ task.ssn }}</td>
+								<td class="align-middle">{{ task.firstname }}</td>
+								<td class="align-middle">{{ task.lastname }}</td>			
+								<td class="align-middle">{{ task.consenteddate }}</td>
+								<td class="align-middle">{{ task.lastcontact }}</td>
+
+							{{ increment(counter, 'counterBLSpec') }}																																												
+							
+							{% else %}
+							{% endif %}
+						
+							</tr>
+						{% endfor %}
+					</tbody>
+			</table>
+
+		</div>
+
+		<div id="randomizationDiv" name="task">
+		
+			<div style="font-size: 20px;"><b>RANDOMIZATION:</b></div>
+
+			<table class="table table-hover table-bordered" id="randomizationTable">
+				<caption> </caption>
+					<thead  class="thead-dark">
+						<tr>
+							<th>#</th>
+								<th>ROAR ID</th>
+								<th>MVP CORE ID</th>
+								<th>SSN</th>
+								<th>FIRST NAME</th>	
+								<th>LAST NAME</th>
+								<th>DUE DATE</th>		
+						</tr>
+					</thead>
+					<tbody>
+						{% for task in tasks %}
+							<tr>
+							{% if task.consented == 1 and task.baselineSurvey != None and task.specimen != None and task.LDL != None and task.randomizationstatus == None %}
+						
+								<td class="align-middle">{{ counter['counterRand'] }}</td>
+								<td class="align-middle">
+									<button type="submit" class="btn btn-primary" name="userIdSelect" value="{{ task.roarid | safe }}">
+										{{ task.roarid }}
+									</button>
+								</td>
+								<td class="align-middle">{{ task.mvpcoreid }}</td>
+								<td class="align-middle">{{ task.ssn }}</td>
+								<td class="align-middle">{{ task.firstname }}</td>
+								<td class="align-middle">{{ task.lastname }}</td>		
+								<td class="align-middle">{{ max([task.consenteddate, task.baselineSurvey, task.specimen, task.LDL]) }}</td>																																												
+
+							{{ increment(counter, 'counterRand') }}	
+
+							{% else %}
+							{% endif %}
+						
+							</tr>
+						{% endfor %}
+					</tbody>
+			</table>
+
+		</div>
+
+		<div id="grDiv" name="task">
+		
+			<div style="font-size: 20px;"><b>GENETIC REPORT:</b></div>
+
+			<table class="table table-hover table-bordered" id="grTable">
+				<caption> </caption>
+					<thead  class="thead-dark">
+						<tr>
+							<th>#</th>
+								<th>ROAR ID</th>
+								<th>MVP CORE ID</th>
+								<th>SSN</th>
+								<th>FIRST NAME</th>	
+								<th>LAST NAME</th>
+								<th>RANDOMIZATION STATUS</th>
+								<th>DUE DATE</th>		
+						</tr>
+					</thead>
+					<tbody>
+						
+						{% set grtask = [] %}
+						
+						{% for task in tasks %}
+						
+							{% if task.consented == 1 and (task.randomizationstatus == "IMMEDIATE" or task.randomizationstatus == "PILOT") and task.geneticReport == None %}
+							
+								{{ grtask.append(task) or "" | safe }}
+							
+							{% elif task.consented == 1 and task.randomizationstatus == "DELAYED" and task.geneticReport == None and task.specimen > task.randomizationdate %}
+
+								{{ grtask.append(task) or "" | safe }}
+
+							{% else %}
+							
+							{% endif %}
+						
+						{% endfor %}
+						
+						<!-- resort by genetic test task date -->
+						
+						{% for ptgr in grtask|sort(attribute='genetictestdate') %}
+						
+							<tr>
+						
+								<td class="align-middle">{{ counter['counterGR'] }}</td>
+								<td class="align-middle">
+									<button type="submit" class="btn btn-primary" name="userIdSelect" value="{{ ptgr.roarid | safe }}">
+										{{ ptgr.roarid }}
+									</button>
+								</td>
+								<td class="align-middle">{{ ptgr.mvpcoreid }}</td>
+								<td class="align-middle">{{ ptgr.ssn }}</td>
+								<td class="align-middle">{{ ptgr.firstname }}</td>
+								<td class="align-middle">{{ ptgr.lastname }}</td>
+								<td class="align-middle">{{ ptgr.randomizationstatus }}</td>		
+								<td class="align-middle">{{ ptgr.genetictestdate }}</td>
+								
+							{{ increment(counter, 'counterGR') }}																																																			
+						
+							</tr>
+						{% endfor %}
+					</tbody>
+			</table>
+
+		</div>
+
+
+		<div id="rorDiv" name="task">
+		
+			<div style="font-size: 20px;"><b>RETURN OF RESULTS:</b></div>
+
+			<table class="table table-hover table-bordered" id="interventionTable">
+				<caption> </caption>
+					<thead  class="thead-dark">
+						<tr>
+							<th>#</th>
+								<th>ROAR ID</th>
+								<th>MVP CORE ID</th>
+								<th>SSN</th>
+								<th>FIRST NAME</th>	
+								<th>LAST NAME</th>
+								<th>RANDOMIZATION STATUS</th>
+								<th>DUE DATE</th>
+								<th>LAST CALL/ATTEMPT</th>		
+						</tr>
+					</thead>
+					<tbody>
+						{% for task in tasks %}
+							<tr>
+							{% if task.consented == 1 and task.geneticReport != None and task.returnResults == None %}
+						
+								<td class="align-middle">{{ counter['counterRR'] }}</td>
+								<td class="align-middle">
+									<button type="submit" class="btn btn-primary" name="userIdSelect" value="{{ task.roarid | safe }}">
+										{{ task.roarid }}
+									</button>
+								</td>
+								<td class="align-middle">{{ task.mvpcoreid }}</td>
+								<td class="align-middle">{{ task.ssn }}</td>
+								<td class="align-middle">{{ task.firstname }}</td>
+								<td class="align-middle">{{ task.lastname }}</td>
+								<td class="align-middle">{{ task.randomizationstatus }}</td>		
+								<td class="align-middle">{{ task.geneticReport }}</td>
+								<td class="align-middle">{{ task.lastcontact }}</td>
+																																																		
+							{{ increment(counter, 'counterRR') }}
+
+							{% else %}
+							{% endif %}
+						
+							</tr>
+						{% endfor %}
+					</tbody>
+			</table>
+
+		</div>
+
+		<div id="rorDocDiv" name="task">
+		
+			<div style="font-size: 20px;"><b>RETURN OF RESULTS DOCUMENTATION:</b></div>
+
+			<table class="table table-hover table-bordered" id="interventionTable">
+				<caption> </caption>
+					<thead  class="thead-dark">
+						<tr>
+							<th>#</th>
+								<th>ROAR ID</th>
+								<th>MVP CORE ID</th>
+								<th>SSN</th>
+								<th>FIRST NAME</th>	
+								<th>LAST NAME</th>
+								<th>RANDOMIZATION STATUS</th>
+								<th>DUE DATE</th>		
+						</tr>
+					</thead>
+					<tbody>
+						{% for task in tasks %}
+							<tr>
+							{% if task.consented == 1 and task.returnResults != None and task.returnResultsDoc == None %}
+						
+								<td class="align-middle">{{ counter['counterRRdoc'] }}</td>
+								<td class="align-middle">
+									<button type="submit" class="btn btn-primary" name="userIdSelect" value="{{ task.roarid | safe }}">
+										{{ task.roarid }}
+									</button>
+								</td>
+								<td class="align-middle">{{ task.mvpcoreid }}</td>
+								<td class="align-middle">{{ task.ssn }}</td>
+								<td class="align-middle">{{ task.firstname }}</td>
+								<td class="align-middle">{{ task.lastname }}</td>
+								<td class="align-middle">{{ task.randomizationstatus }}</td>		
+								<td class="align-middle">{{ task.returnResults }}</td>																																																		
+
+							{{ increment(counter, 'counterRRdoc') }}
+
+							{% else %}
+							{% endif %}
+						
+							</tr>
+						{% endfor %}
+					</tbody>
+			</table>
+
+		</div>
+
+		<div id="eosSpecimenCollectionDiv" name="task">
+		
+			<div style="font-size: 20px;"><b>END-OF-STUDY SPECIMEN COLLECTION:</b></div>
+
+			<table class="table table-hover table-bordered" id="eosSpecimenTable">
+				<caption> </caption>
+					<thead  class="thead-dark">
+						<tr>
+							<th>#</th>
+								<th>ROAR ID</th>
+								<th>MVP CORE ID</th>
+								<th>SSN</th>
+								<th>FIRST NAME</th>	
+								<th>LAST NAME</th>
+								<th>RANDOMIZATION STATUS</th>
+								<th>DUE DATE</th>
+								<th>LAST CALL/ATTEMPT</th>		
+						</tr>
+					</thead>
+					<tbody>
+						{% for task in tasks %}
+							<tr>
+							{% if task.randomizationstatus != None and task.randomizationdate >= task.specimen %}
+						
+								<td class="align-middle">{{ counter['counterEOSpec'] }}</td>
+								<td class="align-middle">
+									<button type="submit" class="btn btn-primary" name="userIdSelect" value="{{ task.roarid | safe }}">
+										{{ task.roarid }}
+									</button>
+								</td>
+								<td class="align-middle">{{ task.mvpcoreid }}</td>
+								<td class="align-middle">{{ task.ssn }}</td>
+								<td class="align-middle">{{ task.firstname }}</td>
+								<td class="align-middle">{{ task.lastname }}</td>
+								<td class="align-middle">{{ task.randomizationstatus }}</td>			
+								<td class="align-middle">{{ task.eosdate }}</td>
+								<td class="align-middle">{{ task.lastcontact }}</td>
+																																												
+
+							{{ increment(counter, 'counterEOSpec') }}
+
+							{% else %}
+							{% endif %}
+						
+							</tr>
+						{% endfor %}
+					</tbody>
+			</table>
+
+		</div>
+
+
+		<div id="eosSurveyDiv" name="task">
+		
+			<div style="font-size: 20px;"><b>END-OF-STUDY SURVEY:</b></div>
+
+			<table class="table table-hover table-bordered" id="eosSurveyTable">
+				<caption> </caption>
+					<thead  class="thead-dark">
+						<tr>
+							<th>#</th>
+								<th>ROAR ID</th>
+								<th>MVP CORE ID</th>
+								<th>SSN</th>
+								<th>FIRST NAME</th>	
+								<th>LAST NAME</th>
+								<th>RANDOMIZATION STATUS</th>
+								<th>DUE DATE</th>
+								<th>LAST CALL/ATTEMPT</th>		
+						</tr>
+					</thead>
+					<tbody>
+						
+						{% for task in tasks %}
+							<tr>
+							{% if task.randomizationstatus != None and task.eosSurvey == None %}
+						
+								<td class="align-middle">{{ counter['counterEOSurv'] }}</td>
+								<td class="align-middle">
+									<button type="submit" class="btn btn-primary" name="userIdSelect" value="{{ task.roarid | safe }}">
+										{{ task.roarid }}
+									</button>
+								</td>
+								<td class="align-middle">{{ task.mvpcoreid }}</td>
+								<td class="align-middle">{{ task.ssn }}</td>
+								<td class="align-middle">{{ task.firstname }}</td>
+								<td class="align-middle">{{ task.lastname }}</td>
+								<td class="align-middle">{{ task.randomizationstatus }}</td>			
+								<td class="align-middle">{{ task.eosdate }}</td>
+								<td class="align-middle">{{ task.lastcontact }}</td>
+																																												
+							{{ increment(counter, 'counterEOSurv') }}
+
+							{% else %}
+							{% endif %}
+						
+							</tr>
+						{% endfor %}
+
+					</tbody>
+			</table>
+
+		</div>
+
+		<div id="incentDiv" name="task">
+		
+			<div style="font-size: 20px;"><b>INCENTIVE PAYMENT:</b></div>
+
+			<table class="table table-hover table-bordered" id="incentiveTable">
+				<caption> </caption>
+					<thead  class="thead-dark">
+						<tr>
+							<th>#</th>
+								<th>ROAR ID</th>
+								<th>MVP CORE ID</th>
+								<th>SSN</th>
+								<th>FIRST NAME</th>	
+								<th>LAST NAME</th>
+								<th>DUE DATE</th>		
+						</tr>
+					</thead>
+					<tbody>
+
+						{% for task in tasks %}
+							<tr>
+							{% if task.randomizationstatus != None and task.eosSurvey != None and task.geneticReport != None and task.returnResults != None and task.returnResultsDoc != None and task.incentive == None %}
+						
+								<td class="align-middle">{{ counter['counterINC'] }}</td>
+								<td class="align-middle">
+									<button type="submit" class="btn btn-primary" name="userIdSelect" value="{{ task.roarid | safe }}">
+										{{ task.roarid }}
+									</button>
+								</td>
+								<td class="align-middle">{{ task.mvpcoreid }}</td>
+								<td class="align-middle">{{ task.ssn }}</td>
+								<td class="align-middle">{{ task.firstname }}</td>
+								<td class="align-middle">{{ task.lastname }}</td>			
+								<td class="align-middle">{{ task.eosSurvey }}</td>																																												
+
+							{{ increment(counter, 'counterINC') }}
+	
+							{% else %}
+							{% endif %}
+						
+							</tr>
+						{% endfor %}
+						
+					</tbody>
+			</table>
+
+		</div>
+
+	</div>
+		
+	<div class="col-3" style="font-size: 18px;">
+		
+		<div class="position-fixed">
+		
+			<br>
+			<b>Filter:</b>
+			<br>
+			
+			<div class="btn-group-vertical">
+				
+				<label class="btn btn-outline-light active text-left">				
+				<input type="checkbox" id="chartReview" name="taskFilter" checked onclick="taskFiltered()">&#160&#160Chart review	
+				</label>
+			
+				<label class="btn btn-outline-light active text-left">					
+				<input type="checkbox" id="recruitLetter" name="taskFilter" checked onclick="taskFiltered()">&#160&#160Recruitment letter	
+				</label>
+			
+				<label class="btn btn-outline-light active text-left">				
+				<input type="checkbox" id="consentCall" name="taskFilter" checked onclick="taskFiltered()">&#160&#160Consent call	
+				</label>
+
+				<label class="btn btn-outline-light active text-left">				
+				<input type="checkbox" id="pedigree" name="taskFilter" checked onclick="taskFiltered()">&#160&#160Collect pedigree	
+				</label>	
+
+				<label class="btn btn-outline-light active text-left">				
+				<input type="checkbox" id="baselineSurvey" name="taskFilter" checked onclick="taskFiltered()">&#160&#160Baseline survey	
+				</label>
+
+				<label class="btn btn-outline-light active text-left">					
+				<input type="checkbox" id="specimenCollection" name="taskFilter" checked onclick="taskFiltered()">&#160&#160Baseline specimen collection	
+				</label>
+
+				<label class="btn btn-outline-light active text-left">				
+				<input type="checkbox" id="randomization" name="taskFilter" checked onclick="taskFiltered()">&#160&#160Randomization	
+				</label>
+
+				<label class="btn btn-outline-light active text-left">					
+				<input type="checkbox" id="gr" name="taskFilter" checked onclick="taskFiltered()">&#160&#160Genetic report
+				</label>
+
+				<label class="btn btn-outline-light active text-left">					
+				<input type="checkbox" id="ror" name="taskFilter" checked onclick="taskFiltered()">&#160&#160Return of results
+				</label>
+
+				<label class="btn btn-outline-light active text-left">					
+				<input type="checkbox" id="rorDoc" name="taskFilter" checked onclick="taskFiltered()">&#160&#160Return of results documentation
+				</label>
+
+				<label class="btn btn-outline-light active text-left">			
+				<input type="checkbox" id="eosSpecimenCollection" name="taskFilter" checked onclick="taskFiltered()">&#160&#160End-of-study specimen collection	
+				</label>
+
+				<label class="btn btn-outline-light active text-left">			
+				<input type="checkbox" id="eosSurvey" name="taskFilter" checked onclick="taskFiltered()">&#160&#160End-of-study survey	
+				</label>
+
+				<label class="btn btn-outline-light active text-left">					
+				<input type="checkbox" id="incent" name="taskFilter"  checked onclick="taskFiltered()">&#160&#160Incentive payment
+				</label>
+
+		</div>
+		
+	</div>
+
+</div>
+
+</form>
+
+<!-- Javascript -->
+
+<script>
+
+// Consider hide show based on population of table - e.g. if nobody in certain pool, doesn't show....
+
+function taskFiltered() {
+
+	var divLength, filterLength, taskid, filterid;
+
+	// Get task divs by name - get length of item array
+	let taskDivs = document.getElementsByName("task");
+	divLength = taskDivs.length;
+
+	// Get task filters by name - set up to match in html
+	let taskFilters = document.getElementsByName("taskFilter");
+	
+	// loop through array and compare task to taskfilter show/hide
+	for (i = 0; i < divLength; i++) {
+		
+		if ((taskDivs[i].id == taskFilters[i].id + "Div") && taskFilters[i].checked) {
+			document.getElementById(taskDivs[i].id).style.display="";
+		} else {
+			document.getElementById(taskDivs[i].id).style.display="none";
+		}
+	}	
+}
+
+</script>
+
+
+{% endblock %}

@@ -1,0 +1,157 @@
+{% extends "layout.html" %}
+{% block title %}
+
+MVP-ROAR APP Home
+
+{% endblock %}
+{% block header %}
+
+<!-- Reference ploty.js 2.2.0 for graphics rendering -->
+<script src = {{ url_for('static',filename='js/plotly-2.2.0.min.js') }}></script>
+
+<div style="font-size: 30px; text-align: center; color: #15317E;">
+	
+	<img src = {{ url_for('static', filename='img/roar_logo.jpg') }} style="width: 528px; height: 230px;">
+	<br>
+	<br>
+	<b><u>WEB APPLICATION FOR MVP-ROAR RECRUITMENT AND ENROLLMENT</u></b>
+	
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+<body>
+	<div class="shadow p-3 mb-5 bg-white rounded">
+		<div id="chart">
+
+		</div>	
+	</div>
+
+	<div class="shadow p-3 mb-5 bg-white rounded">
+		<div class="containter">
+		<div class="row justify-content-center">
+			
+			<div class="col" style="display: flex; justify-content: center;">
+				<div id="map">
+		
+				</div>
+			</div>
+
+			<div class="col" style="display: flex; justify-content: center;">
+				<div id="map2">
+		
+				</div>
+			</div>
+
+		</div>
+		</div>
+	</div>
+
+	<br>
+	
+	<div style="font-size: 24px; text-align: center;">
+	
+	<b> MVP Core Enrollment Past 2, 4, and 8 Weeks RCT (n=244) </b>
+	
+	</div>
+	
+	<br>
+	
+	<div class="row justify-content-center">
+		<div class="col-7">
+	<table class="table table-hover table-bordered" id="enrollTable" style="font-size: 20px; text-align: center;">
+	<thead  class="thead-dark">
+		<tr>
+			<th class="align-middle">Date Period </th>
+			<th class="align-middle">Total Weeks</th>
+			<th class="align-middle">Total Consented</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td class="align-middle"> {{ consentedDates[0].strftime("%m-%d-%Y") }} to {{ today().strftime("%m-%d-%Y") }} </td>
+			<td class="align-middle"> 2 </td>
+			<td class="align-middle"> {{ consentedCounts[0] }} </td>
+		</tr>
+		<tr>
+			<td class="align-middle"> {{ consentedDates[1].strftime("%m-%d-%Y") }} to {{ today().strftime("%m-%d-%Y") }} </td>
+			<td class="align-middle"> 4 </td>
+			<td class="align-middle"> {{ consentedCounts[1] }} </td>
+		</tr>
+		<tr>
+			<td class="align-middle"> {{ consentedDates[2].strftime("%m-%d-%Y") }} to {{ today().strftime("%m-%d-%Y") }} </td>
+			<td class="align-middle"> 8 </td>
+			<td class="align-middle"> {{ consentedCounts[2] }} </td>
+		</tr>
+		<tr>
+			<td class="align-middle"> {{ consentedDates[3].strftime("%m-%d-%Y") }} to {{ today().strftime("%m-%d-%Y") }} </td>
+			<td class="align-middle"> {{ (today() - consentedDates[3]).days//7 }} </td>
+			<td class="align-middle"> {{ consentedCounts[3] }} </td>
+		</tr>
+	</tbody>	
+	</table>
+	</div>
+	</div>
+	
+	<br>
+	<br>
+	
+	<div style="font-size: 24px; text-align: center;">
+	
+	<b> MVP-ROAR RCT Cumulative Enrollment (n=244) </b>
+	
+	</div>
+	
+	<br>
+	
+	<div class="row justify-content-center">
+		<div class="col-7">
+	<table class="table table-hover table-bordered" id="cumEnrollTable" style="font-size: 20px; text-align: center;">
+	<thead  class="thead-dark">
+		<tr>
+			<th class="align-middle"> Month/Year </th>
+			<th class="align-middle"> Monthly Enrollment </th>
+			<th class="align-middle"> Cumulative Enrollment </th>
+			<th class="align-middle"> Enrollment Target </th>
+			<th class="align-middle"> Status </th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for enroll in progressTab %}
+		{% if enroll.cumenroll > 0 %}
+		<tr>
+			<td class="align-middle"> {{ enroll.month_name }} {{ enroll.year }}</td>
+			<td class="align-middle"> {{ enroll.monthenroll }} </td>
+			<td class="align-middle"> {{ enroll.cumenroll }} </td>
+			<td class="align-middle"> {{ enroll.studytarget }} </td>
+			<td class="align-middle"> {{ enroll.cumenroll - enroll.studytarget }} </td>
+		</tr>
+		{% endif %}
+		{% endfor %}		
+	</tbody>
+	</table>
+	</div>
+	</div>
+
+</body>
+
+<!-- Insert script for graphic -->
+
+<script>
+
+var graph = {{ graphJSON | safe }};
+Plotly.react("chart", graph, {});
+
+var map = {{ mapJSON | safe }};
+Plotly.setPlotConfig( {'topojsonURL':'http://127.0.0.1:8080/static/topojson/'} ) /// serve data with app and retrieve, application does not have access to internet
+Plotly.react("map", map, {});
+
+var map2 = {{ mapJSON2 | safe }};
+Plotly.setPlotConfig( {'topojsonURL':'http://127.0.0.1:8080/static/topojson/'} ) /// serve data with app and retrieve, application does not have access to internet
+Plotly.react("map2", map2, {});
+
+</script>
+
+{% endblock %}

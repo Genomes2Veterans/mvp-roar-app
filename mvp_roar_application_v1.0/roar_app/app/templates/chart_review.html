@@ -1,0 +1,396 @@
+{% extends "layout.html" %}
+
+{% block title %}
+
+Participant Detail
+
+{% endblock %}
+{% block header %}
+
+<div style="font-size: 24px;">
+		
+	<b><u>CHART REVIEW:</u> {{ pt.roarid | safe }} </b>
+
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+<!-- Add custom style to this page only -->
+
+<style>
+	
+.table {
+	margin-bottom: 0rem;
+}
+
+.table th {
+	padding: 0.25rem;
+}
+
+.table td {
+	padding: 0.25rem;
+}
+
+#formrow {
+	align-items: center;
+}
+
+</style>
+
+<!-- Page body -->
+
+<br>
+
+<div class="row">
+
+	<div class="col-lg-8">
+		
+		<div class="shadow p-3 mb-5 bg-white rounded">
+			
+			<form action="/commit_chart_review" method="post" id="chartReviewData">
+	
+				<b><u>ENTER CHART REVIEW DATA</u></b>
+				<br>
+				<br>
+	
+				<div class="form-group row" id="formrow">
+					<label for="deceased" class="control-label col-md-3"><b>Deceased:&#160&#160</b></label>
+					<div class="col-md-9">
+						<select autocomplete="off" autofocus class="form-control" id="deceased" name="deceased" required onclick="ifdeceased();">
+							<option value="" selected></option>
+							<option>No</option>
+							<option>Yes</option>
+						</select>
+					</div>
+				</div>
+				
+				<div id="alivediv"> <!-- beginning of alivediv -->
+	
+				<div class="form-group row" id="formrow">
+					<label for="vaStation" class="control-label col-md-3"><b>Current VA Station:&#160&#160</b></label>
+					<div class="col-md-9">
+						
+						<input autocomplete="off" autofocus class="form-control" id="vaStation" name="vaStation" value="" placeholder="Select current VA Station... (Station #) Station Name" type="text" list="stationlist" required>
+						
+						<datalist id="stationlist">
+							
+							{% for sta3n in vaSta3ns %}
+								<option value="{{ sta3n.sta3nname  | safe }}">
+							{% endfor %}
+						
+						</datalist>
+						
+					</div>
+				</div>
+		
+				<div class="form-group row" id="formrow">
+					<label for="vaPCP" class="control-label col-md-3"><b>Current VA PCP:&#160&#160</b></label>
+					<div class="col-md-9">
+						<input autocomplete="off" autofocus class="form-control" id="vaPCP" name="vaPCP" value="" placeholder="Enter VA Provider name... (First Name Last Name, Degree)" type="text" required>
+					</div>
+				</div>
+
+				<div class="form-group row" id="formrow">
+					<label for="tel1" class="control-label col-md-3"><b>Patient Phone Primary:&#160&#160</b></label>
+					<div class="col-md-9">
+						<input autocomplete="off" autofocus class="form-control" id="tel1" name="tel1" type="tel" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" value="" placeholder="Enter phone number, 555-555-5555" required>
+					</div>
+				</div>
+
+				<div class="form-group row" id="formrow">
+					<label for="tel2" class="control-label col-md-3"><b>Patient Phone Secondary:&#160&#160</b></label>
+					<div class="col-md-9">
+						<input autocomplete="off" autofocus class="form-control" id="tel2" name="tel2" type="tel" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" value="" placeholder="Enter phone number, 555-555-5555 (Optional)">
+					</div>
+				</div>
+		
+				<div class="form-group row" id="formrow">
+					<label for="maxLDL" class="control-label col-md-3"><b>Maximum LDL-C (mg/dL):&#160&#160</b></label>
+					<div class="col-md-3">
+						<input autocomplete="off" autofocus class="form-control" id="maxLDL" name="maxLDL" type="number" min="0" max="1000" required>
+					</div>
+			
+					<label for="maxLDLdate" class="control-label col-md-3 text-right"><b>Maximum LDL-C Date:&#160&#160</b></label>
+					<div class="col-md-3">
+						<input autocomplete="off" autofocus class="form-control" id="maxLDLdate" name="maxLDLdate" type="date" min="1970-01-01" max="2024-01-01" required>
+					</div>
+				</div>
+		
+				<div class="form-group row" id="formrow">
+					<label for="recentLDL" class="control-label col-md-3"><b>Most Recent LDL-C (mg/dL):&#160&#160</b></label>
+					<div class="col-md-3">
+						<input autocomplete="off" autofocus class="form-control" id="recentLDL" name="recentLDL" type="number" min="0" max="1000" required>
+					</div>
+			
+					<label for="recentLDLdate" class="control-label col-md-3 text-right"><b>Most Recent LDL-C Date:&#160&#160</b></label>
+					<div class="col-md-3">
+						<input autocomplete="off" autofocus class="form-control" id="recentLDLdate" name="recentLDLdate" type="date" min="1970-01-01" max="2024-01-01" required>
+					</div>
+				</div>
+
+				<div class="form-group row" id="formrow">
+					<label for="suspectVariant" class="control-label col-md-3"><b>Suspected LP/P Variant:&#160&#160</b></label>
+					<div class="col-md-9">
+						<select autocomplete="off" autofocus class="form-control" id="suspectVariant" name="suspectVariant" required>
+							<option value="" selected>Select suspected LP/P variant...</option>
+							{% for v in susV %}
+							<option> {{ v.cdot | safe }} </option>
+							{% endfor %}
+						</select>
+					</div>
+				</div>
+
+				<div class="form-group row" id="formrow">
+					<label for="fh" class="control-label col-md-3"><b>Molecular Diagnosis of FH:&#160&#160</b></label>
+					<div class="col-md-9">
+						<select autocomplete="off" autofocus class="form-control" id="fh" name="fh" required>
+							<option value="" selected></option>
+							<option>No</option>
+							<option>Yes</option>
+						</select>
+					</div>
+				</div>
+				
+				<div class="form-group row" id="formrow">
+					<label for="medications" class="control-label col-md-3"><b>Active Medications:&#160&#160</b></label>
+					<div class="col-md-9">
+				
+					<table>
+						<tbody id="medTableBody">
+						<tr id="med">
+						<td width="35%"><input autocomplete="off" autofocus class="form-control" id="med" name="med" value="" placeholder="Enter medication..." type="text" list="medlist">
+						
+						<datalist id="medlist">
+							
+							{% for med in meds %}
+								<option value="{{ med.medname | safe }}">
+							{% endfor %}
+						
+						</datalist>
+						
+						</td>
+						<td> &#160&#160 </td>
+						<td width="10%"><input autocomplete="off" autofocus class="form-control" id="dose" name="meddose" type="number" min="0" max="9999"></td>
+						<td> &#160&#160 </td>
+						<td>
+							<select autocomplete="off" autofocus class="form-control" id="unit" name="medunit">
+								<option selected>mg</option>
+								<option>mcg</option>
+								<option>g</option>
+								<option>cc</option>
+								<option>ml</option>
+								<option>L</option>"
+								<option>Other</option>
+							</select>
+						</td>
+						<td> &#160&#160 </td>
+						<td> Start date: </td>
+						<td><input autocomplete="off" autofocus class="form-control" id="meddate" name="meddate" type="date" min="1970-01-01" max="2024-01-01"></td>
+						
+						<td> &#160&#160 </td>
+						
+						<td><button type="button" class="btn btn-primary" onclick="addField();"><b>ADD</b></button></td>
+
+						<td><button type="button" class="btn btn-primary" onclick="deleteField(this)"><b>DEL</b></button></td>
+						</tr>
+						</tbody>
+					</table>
+				
+					</div>
+				</div>
+				
+				</div> <!-- end of alive div, hide if deceased selection made -->
+		
+				<div class="form-group row" id="formrow">
+					<label for="notes" class="control-label col-md-3"><b>Notes:&#160&#160</b></label>
+					<div class="col-md-9">
+						<textarea autocomplete="off" autofocus class="form-control" rows="2" id="notes" name="notes"></textarea>
+					</div>
+				</div>
+				
+				<div class="form-group row" id="formrow">
+					<label for="timeSpent" class="control-label col-md-3"><b>Time Spent (in minutes):&#160&#160</b></label>
+					<div class="col-md-9">
+						<input autocomplete="off" autofocus class="form-control" id="timeSpent" name="timeSpent" type="number" min="0" max="90" required>
+					</div>
+				</div>
+		
+				<div class="form-group row" id="formrow">
+					<label for="eligible" class="control-label col-md-3"><b>Eligible for Study:&#160&#160</b></label>
+					<div class="col-md-9">
+						<select autocomplete="off" autofocus class="form-control" id="eligible" name="eligible" required>
+							<option value="" selected>Send recruitment letter?</option>
+							<option>Yes</option>
+							<option>No</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="form-group row" id="formrow">
+					<label for="dateCompleted" class="control-label col-md-3"><b>Date chart review completed:&#160&#160</b></label>
+					<div class="col-md-9">
+						<input autocomplete="off" autofocus class="form-control" id="dateCompleted" name="dateCompleted" type="date" min="2020-01-01" max="2024-01-01" required>
+					</div>
+				</div>
+		
+		
+				<button type="submit" class="btn btn-primary btn-block" name="submitChartDataID" value="{{ pt.roarid | safe }}">
+					<b>Submit Chart Review Data</b>
+				</button>	
+
+			</form>
+			
+		</div>
+	
+	</div>
+	
+
+	<div class="col-lg-4">	
+		
+		<div class="shadow p-3 mb-5 bg-white rounded">
+		
+			<b><u>DATA FROM CORE</u></b>
+			<br>
+			<br>
+			<table class="table table-condensed table-hover" id="demTable">
+				<tbody>
+					<tr>
+						<th style="width: 35%">Name:</th>
+						<td> {{ pt.firstname | safe }} {{ pt.lastname | safe }} </td>
+					</tr>
+					<tr>
+						<th>MVP ROAR ID:</th>
+						<td> {{ pt.roarid | safe }} </td>
+					</tr>
+					<tr>
+						<th>MVP Core ID:</th>
+						<td> {{ pt.mvpcoreid | safe }} </td>
+					</tr>
+					<tr>
+						<th>DOB / Age:</th>
+						<td> {{ pt.dob | safe }} / {{ ptAge | safe }} </td>
+					</tr>
+					<tr>
+						<th>Last 4 SSN:</th>
+						<td> {{ pt.ssn | safe }} </td>
+					</tr>
+					<tr>
+						<th>Sex:</th>
+						{% if pt.sexmale == True %}
+						<td> MALE </td>
+						{% else %}
+						<td> FEMALE </td>
+						{% endif %}		
+					</tr>
+					<tr>
+						<th>Postal Address:</th>
+						<td> 
+							{{ pt.street1 | safe }} {% if pt.street2 == None or pt.street2 == '' %}{% else %} <br> {{ pt.street2 | safe }} {% endif %} {% if pt.street3 == None or pt.street3 == '' %}{% else %} <br> {{ pt.street3 | safe }} {% endif %}
+							<br> {{ pt.city | safe }}, {{ pt.state | safe }} {{ pt.zipcode | safe }}
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		
+		</div>
+		
+	</div>
+	
+</div>
+
+<!-- Javascript -->
+
+<script>
+
+// Declare function to add field to medication table
+
+// set counter for med table list, first element exists
+var counter = 2;
+
+function addField() {
+		var tr = document.getElementById("med").cloneNode(true);
+		
+		// change id of table row to something unique
+		tr.id = "med" + counter.toString();
+		
+		// change names to specific elements to pass to application
+		tr.querySelectorAll('[name="med"]')[0].value = "";
+		tr.querySelectorAll('[name="med"]')[0].name = "med" + counter.toString();
+		tr.querySelectorAll('[name="meddose"]')[0].value = "";
+		tr.querySelectorAll('[name="meddose"]')[0].name = "meddose" + counter.toString();
+		tr.querySelectorAll('[name="medunit"]')[0].name = "medunit" + counter.toString();
+		tr.querySelectorAll('[name="meddate"]')[0].value = "";
+		tr.querySelectorAll('[name="meddate"]')[0].name = "meddate" + counter.toString();
+		
+		// append newly cloned and named features to existing table
+		document.getElementById("medTableBody").appendChild(tr);
+		
+		// update counter
+		counter++;
+}
+
+
+// declare function to remove child node - only remove if not first node and if total nodes greater than 1
+
+function deleteField(elem) {
+		
+		var childnodecount = document.getElementById("medTableBody").childElementCount;
+		var elementID = elem.parentNode.parentNode.id;
+		
+		if (childnodecount > 1 && elementID != "med") {
+		
+			document.getElementById(elementID).remove();
+		
+		}
+		
+}
+
+
+// declare function to remove required fields if patient is deceased
+
+function ifdeceased() {
+	
+	var deceasedvalue = document.getElementById("deceased").value;
+	
+	if (deceasedvalue == "Yes") {
+	
+		document.getElementById("alivediv").style.display = "none";
+		document.getElementById("vaStation").required = false;
+		document.getElementById("vaPCP").required = false;
+		document.getElementById("tel1").required = false;
+		document.getElementById("maxLDL").required = false;		
+		document.getElementById("maxLDLdate").required = false;
+		document.getElementById("recentLDL").required = false;
+		document.getElementById("recentLDLdate").required = false;
+		document.getElementById("fh").required = false;
+		document.getElementById("suspectVariant").required = false;
+			
+	}
+	
+	if (deceasedvalue == "No" || deceasedvalue == "") {
+	
+		document.getElementById("alivediv").style.display = "block";
+		document.getElementById("vaStation").required = true;
+		document.getElementById("vaPCP").required = true;
+		document.getElementById("tel1").required = true;
+		document.getElementById("maxLDL").required = true;		
+		document.getElementById("maxLDLdate").required = true;
+		document.getElementById("recentLDL").required = true;
+		document.getElementById("recentLDLdate").required = true;
+		document.getElementById("fh").required = true;
+		document.getElementById("suspectVariant").required = true;
+	
+	}
+
+}
+
+</script>
+
+		<!-- document.getElementById("suspectVariant").required = false;  #b/t recentLDL and fh 'Yes' - TEMP CHANGE TO ALLOW SUBMISSION W/O VARIANT ID 12/7/2021 CHANGED BACK-->
+
+		<!-- document.getElementById("suspectVariant").required = true;  #b/t recentLDL and fh 'No' - TEMP CHANGE TO ALLOW SUBMISSION W/O VARIANT ID -->
+		
+
+{% endblock %}

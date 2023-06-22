@@ -1,0 +1,161 @@
+{% extends "layout.html" %}
+{% block title %}
+
+MVP-ROAR Participant List
+
+{% endblock %}
+{% block header %}
+
+<div style="font-size: 24px;">
+		
+	<b><u>PARTICIPANTS</u></b>
+
+	<div style="float:right; font-size: 18px;" >
+		
+		<b>Search:&#160&#160</b><input type="text" id="searchInput" onkeyup="searchFunction()" placeholder="Search ROAR ID...">
+		
+		<b>&#160&#160Filter:&#160&#160</b>
+		
+		<div class="btn-group">
+		
+			<label class="btn btn-outline-light active text-left">				
+			<input type="checkbox" id="consentFilter" name="consented" onclick="consentFilter()">&#160&#160Consented	
+			</label>
+		
+		</div>
+	
+	</div>
+
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+<!-- Page body -->
+
+<br>
+
+<form action="/participants" method="post">
+<table class="table table-hover table-bordered" id="cptsTable">
+		<caption>List of all potentially eligible and consented participants for MVP_030.</caption>
+	<thead  class="thead-dark">
+		<tr>
+			<th>#</th>
+			<th>ROAR ID</th>
+			<th>MVP CORE ID</th>
+			<th>SSN</th>
+			<th>FIRST NAME</th>	
+			<th>LAST NAME</th>
+			<th>DATE OF BIRTH</th>
+			<th>CORE RELEASE DATE</th>
+			<th>STATUS DATE</th>
+			<th>RANDOMIZATION STATUS</th>		
+		</tr>
+	</thead>
+	<tbody>
+	{% for pt in cpts %}
+		<tr name="row" id="{{ pt.roarid | safe }}" {% if pt.consenteddate == None %} data-value="none" {% else %} data-value="consented" {% endif %}>
+			<td class="align-middle">{{ loop.index }}</td>
+			<td class="align-middle">
+				<button type="submit" class="btn btn-primary" name="userIdSelect" value="{{ pt.roarid | safe }}">
+				{{ pt.roarid | safe }}
+				</button>	
+			</td>
+			<td class="align-middle">{{ pt.mvpcoreid }}</td>
+			<td class="align-middle">{{ pt.ssn }}</td>
+			<td class="align-middle">{{ pt.firstname  }}</td>	
+			<td class="align-middle">{{ pt.lastname }}</td>
+			<td class="align-middle">{{ pt.dob }}</td>
+			<td class="align-middle">{{ pt.corereleasedate }}</td>
+			
+			{% if pt.consenteddate != None and pt.deceaseddate == None and pt.withdrawndate == None and pt.losttofup == None %}
+				<td class="align-middle"> CONSENTED {{ pt.consenteddate.strftime("%Y-%m-%d") }}</td>
+			{% elif pt.consenteddate == None and pt.losttofup == 1 %}
+				<td class="align-middle"> LOST TO FOLLOW UP {{ pt.losttofupdate.strftime("%Y-%m-%d") }}</td>
+			{% elif pt.consenteddate == None and pt.deceaseddate != None %}
+				<td class="align-middle">DECEASED {{ pt.deceaseddate.strftime("%Y-%m-%d") }}</td>
+			{% elif pt.declineddate != None %}
+				<td class="align-middle">DECLINED {{ pt.declineddate.strftime("%Y-%m-%d") }}</td>
+			{% elif pt.consenteddate != None and pt.deceaseddate != None %}
+				<td class="align-middle">CONSENTED {{ pt.consenteddate.strftime("%Y-%m-%d") }} / DECEASED {{ pt.deceaseddate.strftime("%Y-%m-%d") }}</td>
+			{% elif pt.consenteddate != None and pt.withdrawndate != None %}
+				<td class="align-middle">CONSENTED {{ pt.consenteddate.strftime("%Y-%m-%d") }} / WITHDRAWN {{ pt.withdrawndate.strftime("%Y-%m-%d") }}</td>						
+			{% elif pt.consenteddate != None and pt.losttofup == 1 %}
+				<td class="align-middle">CONSENTED {{ pt.consenteddate.strftime("%Y-%m-%d") }} / LOST TO FOLLOW UP {{ pt.losttofupdate.strftime("%Y-%m-%d") }}</td>							
+			{% else %}
+				<td class="align-middle"></td>
+			{% endif %}
+			
+			{%if pt.randomizationstatus == None %}
+				<td class="align-middle"></td>
+			{% else %}
+				<td class="align-middle">{{ pt.randomizationstatus }}</td>
+			{% endif %}		
+		</tr>
+	{% endfor %}	
+	</tbody>	
+</table>
+</form>
+
+<!-- Javascript -->
+
+<script>
+
+// Declare function to reverse search input (in the event of a first letter mistype)
+
+function reverseString(str) {
+	
+	return str.split('').reverse().join('')
+
+}
+
+// Declare search function from search input 
+
+function searchFunction() {
+	
+	// Declare variables
+	var input, rowid, checkBoxFilter, rowconsent
+	input = document.getElementById("searchInput").value.toUpperCase();
+	checkBoxFilter = document.getElementById("consentFilter");
+	
+	// Get table rows by name
+	let tableRows = document.getElementsByName("row");
+	
+	// Loop through each row, compare to input, show or hide based on match
+	tableRows.forEach((row) => {
+		rowid = row.id
+		rowconsent = row.getAttribute("data-value")
+		if (!rowid.includes(input) && !rowid.includes(reverseString(input)) || (rowconsent === "none" && checkBoxFilter.checked == true)) {
+			document.getElementById(rowid).style.display="none";
+		} else {
+			document.getElementById(rowid).style.display="";
+		}
+	});
+}
+
+// Declare function for consent filter, either standalone or with search function
+
+function consentFilter() {
+	var input, rowid, checkBoxFilter, rowconsent
+	input = document.getElementById("searchInput").value.toUpperCase();
+	checkBoxFilter = document.getElementById("consentFilter");
+	
+	// Get table rows by name
+	let tableRows = document.getElementsByName("row");
+
+	tableRows.forEach((row) => {
+		rowid = row.id
+		rowconsent = row.getAttribute("data-value")
+		if (!rowid.includes(input) && !rowid.includes(reverseString(input)) || (rowconsent === "none" && checkBoxFilter.checked == true)) {
+			document.getElementById(rowid).style.display="none";
+		} else {
+			document.getElementById(rowid).style.display="";
+		}
+	});
+
+}
+	
+</script>
+
+{% endblock %}

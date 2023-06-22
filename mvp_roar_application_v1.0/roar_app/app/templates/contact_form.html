@@ -1,0 +1,465 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Participant Detail
+{% endblock %}
+{% block header %}
+
+	<div style="font-size: 24px;">
+		
+		<b><u>RECORD ACTION:</u> {{ pt.roarid }} </b>
+
+	</div>
+
+{% endblock %}
+
+{% block content %}
+
+<!-- Add custom style to this page only -->
+
+<style>
+	
+.table {
+	margin-bottom: 0rem;
+}
+
+.table th {
+	padding: 0.25rem;
+}
+
+.table td {
+	padding: 0.25rem;
+}
+
+#formrow {
+	align-items: center;
+}
+
+label span {
+	display: inline-block;
+	vertical-align: text-top;
+	margin-right: 60px;
+}
+
+
+</style>
+
+<!-- Page body -->
+
+<br>
+
+<div class="row">
+
+	<div class="col-lg-8">
+		
+		<div class="shadow p-3 mb-5 bg-white rounded">
+			
+			<form action="/commit_contact_data" method="post" id="contactData">
+	
+				<b><u>ENTER ACTION, CONTACT, OR NOTE DATA</u></b>
+				<br>
+				<br>
+				
+				<div class="form-group row" id="formrow">
+					<label for="contactType" class="control-label col-md-3"><b>Action type:&#160&#160</b></label>
+					<div class="col-md-9">
+						<select autocomplete="off" autofocus class="form-control" id="contactType" name="contactType" onclick="optionGenerator()" required>
+							<option value="" selected></option>
+							<option>Email</option>
+							<option>Phone call</option>
+							<option>Video call</option>
+							<option>Note</option>
+						</select>
+					</div>
+				</div>
+				
+				<div class="form-group row" id="formrow">
+					<label for="contactType" class="control-label col-md-3"><b>Action reason:&#160&#160</b></label>
+					<div class="col-md-9">
+						<select autocomplete="off" autofocus class="form-control" id="contactReason" name="contactReason" onclick="divGenerator()" required>
+							{% if pt.consented == None %}
+							<option value="" selected></option>
+							<option>Consent call</option>
+							<option>Other</option>
+							{% else %}
+							<option value="" selected></option>
+							<option>Participant contact</option>
+							<option>Other</option>
+							{% endif %}	
+						</select>
+					</div>
+				</div>
+				
+				<div class="form-group row" id="formrow">
+					<label for="contactType" class="control-label col-md-3"><b>Action outcome:&#160&#160</b></label>
+					<div class="col-md-9">
+						<select autocomplete="off" autofocus class="form-control" id="contactOutcome" name="contactOutcome" required>
+							<!-- dynamically created via option generator -->
+						</select>
+					</div>
+				</div>
+				
+				<div class="form-group row" id="formrow">
+					<label for="contactDate" class="control-label col-md-3"><b>Action Date:&#160&#160</b></label>
+					<div class="col-md-9">
+						<input autocomplete="off" autofocus class="form-control" id="contactDate" name="contactDate" type="date" min="2020-01-01" max="2024-01-01" required>
+					</div>
+				</div>
+
+				<div class="form-group row" id="formrow">
+					<label for="contactTime" class="control-label col-md-3"><b>Action Time (optional):&#160&#160</b></label>
+					<div class="col-md-9">
+						<input autocomplete="off" autofocus class="form-control" id="contactTime" name="contactTime" type="time">
+					</div>
+				</div>
+				
+				<!-- DISPLAY DIVS BASED ON RESPONSES ABOVE -->
+				
+				<!-- consent divs -->
+				
+				<!-- if consent call and spoke display div -->
+				
+				<div id="consentDiv" style="display: none;">
+					<div class="form-group row" id="formrow">
+					<label class="control-label col-md-3"><b>Record consent outcome:&#160&#160</b></label>
+						<div class="col-md-9" style="font-size: 130%;">
+							<div class="form-check form-check-inline">
+								<input class="form-check-input" type="radio" name="consentOutcome" id="radioConsent" value="Consented" onclick="consentDateShow()">
+								<label class="form-chaeck-label" for="radioConsent"><span>Consented</span></label>
+							</div>
+							<div class="form-check form-check-inline">
+								<input class="form-check-input" type="radio" name="consentOutcome" id="radioDecline" value="Declined" onclick="consentDateShow()">
+								<label class="form-chaeck-label" for="radioDecline"><span>Declined</span></label>
+							</div>
+							<div class="form-check form-check-inline">
+								<input class="form-check-input" type="radio" name="consentOutcome" id="radioPending" value="Pending" onclick="consentDateShow()" checked>
+								<label class="form-chaeck-label" for="radioPending"><span>Pending</span></label>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<!-- if consent conset/decline display consent date div -->
+				
+				<div id="consentDateDiv" style="display: none;">
+					<div class="form-group row" id="formrow">
+						<label for="consentDate" class="control-label col-md-3"><b>Consent/Decline Date:&#160&#160</b></label>
+						<div class="col-md-9">
+							<input autocomplete="off" autofocus class="form-control" id="consentDate" name="consentDate" type="date" min="2020-01-01" max="2024-01-01">
+						</div>
+					</div>
+				</div>
+
+				<!-- Notes and time spent -->
+		
+				<div class="form-group row" id="formrow">
+					<label for="contactNotes" class="control-label col-md-3"><b>Notes:&#160&#160</b></label>
+					<div class="col-md-9">
+						<textarea autocomplete="off" autofocus class="form-control" rows="2" id="contactNotes" name="contactNotes"></textarea>
+					</div>
+				</div>
+				
+				<div class="form-group row" id="formrow">
+					<label for="timeSpentContact" class="control-label col-md-3"><b>Time Spent (in minutes):&#160&#160</b></label>
+					<div class="col-md-9">
+						<input autocomplete="off" autofocus class="form-control" id="timeSpentContact" name="timeSpentContact" type="number" min="0" max="240" required>
+					</div>
+				</div>
+		
+				<button type="submit" class="btn btn-primary btn-block" name="submitContactDataID" value="{{ pt.roarid | safe }}">
+					<b>Submit Action, Contact, or Note Information</b>
+				</button>	
+
+			</form>
+			
+		</div>
+	
+	</div>
+	
+
+	<div class="col-lg-4">	
+		
+		<div class="shadow p-3 mb-5 bg-white rounded">
+		
+			<b><u>Participant Data</u></b>
+			<br>
+			<br>
+			<table class="table table-condensed table-hover" id="demTable">
+				<tbody>
+					<tr>
+						<th style="width: 35%">Name:</th>
+						<td> {{ pt.firstname | safe }} {{ pt.lastname | safe }} </td>
+					</tr>
+					<tr>
+						<th>MVP ROAR ID:</th>
+						<td> {{ pt.roarid | safe }} </td>
+					</tr>
+					<tr>
+						<th>MVP Core ID:</th>
+						<td> {{ pt.mvpcoreid | safe }} </td>
+					</tr>
+					<tr>
+						<th>DOB / Age:</th>
+						<td> {{ pt.dob | safe }} / {{ ptAge | safe }} </td>
+					</tr>
+					<tr>
+						<th>Last 4 SSN:</th>
+						<td> {{ pt.ssn | safe }} </td>
+					</tr>
+					<tr>
+						<th>Sex:</th>
+						{% if pt.sexmale == True %}
+						<td> MALE </td>
+						{% else %}
+						<td> FEMALE </td>
+						{% endif %}		
+					</tr>
+					<tr>
+						<th>VA Station:</th>
+						<td>
+							{% if ptVA == None %}
+								PENDING
+							{% else %}
+								{{ ptVA.sta3nname | safe }}
+							{% endif %}
+						</td>
+					</tr>
+					<tr>
+						<th>Postal Address:</th>
+						<td> 
+							{{ pt.street1 | safe }} {% if pt.street2 == None or pt.street2 == '' %}{% else %} <br> {{ pt.street2 | safe }} {% endif %} {% if pt.street3 == None or pt.street3 == '' %}{% else %} <br> {{ pt.street3 | safe }} {% endif %}
+							<br> {{ pt.city | safe }}, {{ pt.state | safe }} {{ pt.zipcode | safe }}
+						</td>
+					</tr>
+					<tr>
+						<th>Active Phone Numbers:</th>
+						<td>{% if ptPhone|length > 0 %}
+								{% for ptp in ptPhone %}
+									{% if ptp.primaryphone == 1 %}
+										{{ ptp.patientphone | safe }} (Primary)
+									{% else %}
+										<br> {{ ptp.patientphone | safe }} 
+									{% endif %}
+								{% endfor %}
+							{% else %}
+								PENDING
+							{% endif %}
+						</td>
+					</tr>
+					<tr>
+						<th>Email Address:</th>
+						<td>{% if ptEmail|length > 0 %}
+								{% for pte in ptEmail %}
+									{{ pte.patientemail | safe }}<br> 
+								{% endfor %}
+							{% else %}
+								PENDING
+							{% endif %}
+						</td>
+					</tr>
+					
+
+					<tr>
+						<th>Providers:</th>
+						<td> 
+							{% for prov in ptProv %}
+								{{ prov.provider }} ({% if prov.vaprovider == True %} VA {% else %} Non-VA {% endif %}) <br>
+							{% endfor %}
+						</td>
+					</tr>
+
+					
+					<tr>
+						<th>Participant Group:</th>
+						{% if pt.pilotparticipant == True %}
+						<td> PILOT PARTICIPANT </td>
+						{% else %}
+						<td> RCT PARTICIPANT </td>
+						{% endif %}		
+					</tr>
+					
+					<tr>
+						<th>Consent Status:</th>
+						{% if pt.consenteddate == None and pt.deceased == 1 %}
+						<td> NOT CONSENTED AND DECEASED </td>
+						{% elif pt.consenteddate == None and pt.eligible == 0 %}
+						<td> NOT CONSENTED AND NOT ELIGIBLE </td>
+						{% elif pt.consenteddate == None and pt.losttofup == 1 %}
+						<td> NOT CONSENTED AND LOST TO FOLLOW UP </td>
+						{% elif pt.declineddate != None and pt.eligible == 1 %}
+						<td> DECLINED / {{ pt.declineddate }}</td>
+						{% elif pt.consenteddate == None and pt.eligible == 1 %}
+						<td> NOT CONSENTED </td>
+						{% elif pt.consenteddate != None and pt.deceased == 1 %}
+						<td> CONSENTED / {{ pt.consenteddate }} AND DECEASED / {{ pt.deceaseddate }} </td>
+						{% elif pt.consenteddate != None and pt.withdrawn == 1 %}
+						<td> CONSENTED / {{ pt.consenteddate }} AND WITHDRAWN / {{ pt.withdrawndate }} </td>
+						{% elif pt.consenteddate != None and pt.eligible == 1 %}
+						<td> CONSENTED / {{ pt.consenteddate }}</td>
+						{% else %}
+						<td> PENDING </td>
+						{% endif %}		
+					</tr>
+					
+					<tr>
+						<th>Randomization Status:</th>
+						{% if pt.randomizationstatus == None %}
+						<td> NOT RANDOMIZED </td>
+						{% else %}
+						<td>  {{ pt.randomizationstatus }} / {{ pt.randomizationdate }} </td>
+						{% endif %}		
+					</tr>
+					
+				</tbody>
+			</table>
+		
+		</div>
+		
+	</div>
+	
+</div>
+
+
+<!-- script for dynamic manipulation -->
+
+<script>
+
+// dynamically create select options based on contact type
+
+function optionGenerator() {
+	
+	var contacttype = document.getElementById("contactType");
+	var selectDiv = document.getElementById("contactOutcome");
+	
+	if (contacttype.value === "Phone call" || contacttype.value === "Video call") {
+		
+		var callitems = ["Spoke with Veteran", "Left voicemail", "No voicemail"];
+		
+		<!-- clear selections before reappending -->
+		while (selectDiv.firstChild) {
+			selectDiv.removeChild(selectDiv.firstChild)
+		}
+		
+		<!-- loop through options and append to node -->
+		for (var i = 0; i < callitems.length; i++) {
+		
+			var item = callitems[i];
+			var newoption = document.createElement("option");
+			newoption.innerText = item;
+			selectDiv.append(newoption);
+				
+		}
+		
+	}
+	
+	else if (contacttype.value === "Email") {
+		
+		var callitems = ["Email received", "Email sent"];
+		
+		<!-- clear selections before reappending -->
+		while (selectDiv.firstChild) {
+			selectDiv.removeChild(selectDiv.firstChild)
+		}
+		
+		<!-- loop through options and append to node -->
+		for (var i = 0; i < callitems.length; i++) {
+		
+			var item = callitems[i];
+			var newoption = document.createElement("option");
+			newoption.innerText = item;
+			selectDiv.append(newoption);
+				
+		}
+		
+	}
+
+	else if (contacttype.value === "Note") {
+		
+		var noteoptions = ["Research note completed", "VA Form 10-5345 received (release of information)"];
+		
+		<!-- clear selections before reappending -->
+		while (selectDiv.firstChild) {
+			selectDiv.removeChild(selectDiv.firstChild)
+		}
+		
+		for (var i = 0; i < noteoptions.length; i++) {
+		
+			var item = noteoptions[i];
+			var newoption = document.createElement("option");
+			newoption.innerText = item;
+			selectDiv.append(newoption);
+		
+		}
+		
+	}
+	
+	else if (contacttype.value === "Record study data") {
+		
+		<!-- clear selections before reappending -->
+		while (selectDiv.firstChild) {
+			selectDiv.removeChild(selectDiv.firstChild)
+		}
+		
+		var newoption = document.createElement("option");
+		newoption.innerText = "Study data recorded";
+		selectDiv.append(newoption);
+		
+	}
+
+	else {
+		
+		<!-- clear selections before reappending -->
+		while (selectDiv.firstChild) {
+			selectDiv.removeChild(selectDiv.firstChild)
+		}
+		
+	}
+	
+}
+
+
+// Dynamically make divs visible depending on contact reason
+
+function divGenerator() {
+	
+	var reasonvalue = document.getElementById("contactReason").value;
+	
+	if (reasonvalue == "Consent call") {
+		document.getElementById("consentDiv").style.display = "block";
+		
+	}
+	
+	else {
+		
+		document.getElementById("consentDiv").style.display = "none";
+		
+	}
+
+}
+
+// Display date of consent option if consented or decline selected
+
+function consentDateShow() {
+
+	// Get table rows by name
+	let consentoutcomes = document.getElementsByName("consentOutcome");
+
+	consentoutcomes.forEach((outcome) => {
+		outcomeid = outcome.id;
+		outcomeselected = outcome.checked;
+		
+		if ((outcomeid == "radioPending" && outcomeselected == true)) {
+			document.getElementById("consentDateDiv").style.display = "none";
+			document.getElementById("consentDate").required = false;
+		} else {
+			document.getElementById("consentDateDiv").style.display = "block";
+			document.getElementById("consentDate").required = true;
+		}
+	});
+
+}
+
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,283 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Randomization
+{% endblock %}
+{% block header %}
+
+<div style="font-size: 24px;">
+		
+	<b><u>RANDOMIZATION:</u> {{ pt.roarid | safe }} </b>
+
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+<!-- Add custom style to this page only -->
+
+<style>
+	
+.table {
+	margin-bottom: 0rem;
+}
+
+.table th {
+	padding: 0.25rem;
+}
+
+.table td {
+	padding: 0.25rem;
+}
+
+#formrow {
+	align-items: center;
+}
+
+label span {
+	display: inline-block;
+	vertical-align: text-top;
+	margin-right: 60px;
+}
+
+
+</style>
+
+<!-- Page body -->
+
+<br>
+
+<div class="row">
+	
+	<div class="col-lg-7">
+		
+		<div class="shadow p-3 mb-5 bg-white rounded">
+			
+			<form action="/randomize_participant" method="post" id="randomizationData" name="randomizationData" onSubmit="return confirm('Are you sure you would like to randomize participant {{ pt.roarid | safe }}?');">
+				
+				<b><u>CONFIRM READY FOR RANDOMIZATION:</u></b>
+				<br>
+				<br>
+				
+				<div class="form-group row" id="formrow">
+					<label for="participantConsented" class="control-label col-md-3"><b>Participant consented:&#160&#160</b></label>
+					<div class="col-md-9">
+						<select autocomplete="off" autofocus class="form-control" id="participantConsented" name="participantConsented" required onclick="displayRandButton()">
+							<option value="" selected></option>
+							<option>Yes</option>
+							<option>No</option>
+						</select>
+					</div>
+				</div>
+
+				<br>
+
+				<div class="form-group row" id="formrow">
+					<label for="baselineSurveyComplete" class="control-label col-md-3"><b>Baseline survey completed:&#160&#160</b></label>
+					<div class="col-md-9">
+						<select autocomplete="off" autofocus class="form-control" id="baselineSurveyComplete" name="baselineSurveyComplete" required onclick="displayRandButton()">
+							<option value="" selected></option>
+							<option>Yes</option>
+							<option>No</option>
+						</select>
+					</div>
+				</div>
+
+				<br>
+
+				<div class="form-group row" id="formrow">
+					<label for="validLDL" class="control-label col-md-3"><b>Valid baseline LDL measurement:&#160&#160</b></label>
+					<div class="col-md-9">
+						<select autocomplete="off" autofocus class="form-control" id="validLDL" name="validLDL" required onclick="displayRandButton()">
+							<option value="" selected></option>
+							<option>Yes</option>
+							<option>No</option>
+						</select>
+					</div>
+				</div>
+				
+				<br>
+
+				<div class="form-group row" id="formrow">
+					<label for="specimenReceived" class="control-label col-md-3"><b>Genetic specimen received:&#160&#160</b></label>
+					<div class="col-md-9">
+						<select autocomplete="off" autofocus class="form-control" id="specimenReceived" name="specimenReceived" required onclick="displayRandButton()">
+							<option value="" selected></option>
+							<option>Yes</option>
+							<option>No</option>
+						</select>
+					</div>
+				</div>
+			
+				<br>
+
+				<div class="form-group row" id="formrow">
+					<label for="dateRandomized" class="control-label col-md-3"><b>Date randomized:&#160&#160</b></label>
+					<div class="col-md-9">
+						<input autocomplete="off" autofocus class="form-control" id="dateRandomized" name="dateRandomized" type="date" min="2020-01-01" max="2024-01-01" required onclick="displayRandButton()">
+					</div>
+				</div>
+			
+				<br>
+			
+				<button type="submit" class="btn btn-danger btn-block btn-lg" id="submitRandomizationID" name="submitRandomizationID" value="{{ pt.roarid | safe }}" style="display: none">
+					<b>! ! ! ! ! ! RANDOMIZE PARTICIPANT ! ! ! ! ! !</b>
+				</button>	
+				
+			</form>
+			
+		</div>
+		
+	</div>
+	
+	
+	<div class="col-lg-5">	
+		
+		<div class="shadow p-3 mb-5 bg-white rounded">
+		
+			<b><u>Participant Data</u></b>
+			<br>
+			<br>
+			<table class="table table-condensed table-hover" id="demTable">
+				<tbody>
+					<tr>
+						<th style="width: 35%">Name:</th>
+						<td> {{ pt.firstname | safe }} {{ pt.lastname | safe }} </td>
+					</tr>
+					<tr>
+						<th>MVP ROAR ID:</th>
+						<td> {{ pt.roarid | safe }} </td>
+					</tr>
+					<tr>
+						<th>MVP Core ID:</th>
+						<td> {{ pt.mvpcoreid | safe }} </td>
+					</tr>
+					<tr>
+						<th>DOB / Age:</th>
+						<td> {{ pt.dob | safe }} / {{ ptAge | safe }} </td>
+					</tr>
+					<tr>
+						<th>Last 4 SSN:</th>
+						<td> {{ pt.ssn | safe }} </td>
+					</tr>
+					<tr>
+						<th>Sex:</th>
+						{% if pt.sexmale == True %}
+						<td> MALE </td>
+						{% else %}
+						<td> FEMALE </td>
+						{% endif %}		
+					</tr>
+					<tr>
+						<th>VA Station:</th>
+						<td>
+							{% if ptVA == None %}
+								PENDING
+							{% else %}
+								{{ ptVA.sta3nname | safe }}
+							{% endif %}
+						</td>
+					</tr>
+					<tr>
+						<th>Postal Address:</th>
+						<td> 
+							{{ pt.street1 | safe }} {% if pt.street2 == None or pt.street2 == '' %}{% else %} <br> {{ pt.street2 | safe }} {% endif %} {% if pt.street3 == None or pt.street3 == '' %}{% else %} <br> {{ pt.street3 | safe }} {% endif %}
+							<br> {{ pt.city | safe }}, {{ pt.state | safe }} {{ pt.zipcode | safe }}
+						</td>
+					</tr>
+
+					<tr>
+						<th>Providers:</th>
+						<td> 
+							{% for prov in ptProv %}
+								{{ prov.provider }} ({% if prov.vaprovider == True %} VA {% else %} Non-VA {% endif %}) <br>
+							{% endfor %}
+						</td>
+					</tr>
+
+					
+					<tr>
+						<th>Participant Group:</th>
+						{% if pt.pilotparticipant == True %}
+						<td> PILOT PARTICIPANT </td>
+						{% else %}
+						<td> RCT PARTICIPANT </td>
+						{% endif %}		
+					</tr>
+					
+					<tr>
+						<th>Consent Status:</th>
+						{% if pt.consenteddate == None and pt.deceased == 1 %}
+						<td> NOT CONSENTED AND DECEASED </td>
+						{% elif pt.consenteddate == None and pt.eligible == 0 %}
+						<td> NOT CONSENTED AND NOT ELIGIBLE </td>
+						{% elif pt.declineddate != None and pt.eligible == 1 %}
+						<td> DECLINED / {{ pt.declineddate }}</td>
+						{% elif pt.consenteddate == None and pt.eligible == 1 %}
+						<td> NOT CONSENTED </td>
+						{% elif pt.consenteddate != None and pt.deceased == 1 %}
+						<td> CONSENTED / {{ pt.consenteddate }} AND DECEASED / {{ pt.deceaseddate }} </td>
+						{% elif pt.consenteddate != None and pt.withdrawn == 1 %}
+						<td> CONSENTED / {{ pt.consenteddate }} AND WITHDRAWN / {{ pt.withdrawndate }} </td>
+						{% elif pt.consenteddate != None and pt.eligible == 1 %}
+						<td> CONSENTED / {{ pt.consenteddate }}</td>
+						{% else %}
+						<td> PENDING </td>
+						{% endif %}		
+					</tr>
+					
+					<tr>
+						<th>Randomization Status:</th>
+						{% if pt.randomizationstatus == None %}
+						<td> NOT RANDOMIZED </td>
+						{% else %}
+						<td> {{ pt.randomizationstatus }} </td>
+						{% endif %}		
+					</tr>
+					
+				</tbody>
+			</table>
+		
+		</div>
+			
+	
+</div>
+
+
+<script>
+
+// Dynamically make submit div visible depending on responses to randomization questions
+
+function displayRandButton() {
+	
+	var consented = document.getElementById("participantConsented").value;
+	var survey = document.getElementById("baselineSurveyComplete").value;
+	var ldl = document.getElementById("validLDL").value;
+	var specimen = document.getElementById("specimenReceived").value;
+
+	if (consented == "Yes" && survey == "Yes" && ldl == "Yes" && specimen == "Yes") {
+		document.getElementById("submitRandomizationID").style.display = "block";
+		
+	}
+	
+	else {
+		
+		document.getElementById("submitRandomizationID").style.display = "none";
+		
+	}
+
+}
+
+// Double check with alert
+
+//function displayRandAlert() {
+	//return confirm("Are you sure you would like to randomize participant {{ pt.roarid | safe }}?");
+//}
+
+
+
+</script>
+
+
+{% endblock %}

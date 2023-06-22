@@ -1,0 +1,341 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Intervention Documentation
+{% endblock %}
+{% block header %}
+
+<div style="font-size: 24px;">
+		
+	<b><u>RETURN OF RESULTS INTERVENTION DOCUMENTATION:</u> {{ pt.roarid | safe }} </b>
+
+</div>
+
+
+{% endblock %}
+
+{% block content %}
+
+<!-- Add custom style to this page only -->
+
+<style>
+	
+.table {
+	margin-bottom: 0rem;
+}
+
+.table th {
+	padding: 0.25rem;
+}
+
+.table td {
+	padding: 0.25rem;
+}
+
+</style>
+
+<!-- Page body -->
+
+
+<div class="row">
+
+
+	<div class="col-lg-7">
+
+		<div class="shadow p-3 mb-5 bg-white rounded">
+			
+			<form action="/commit_intervention_documentation" method="post" id="interventionData">
+	
+				<b><u>ENTER INTERVENTION DOCUMENTATION DATA</u></b>
+				<br>
+				<br>
+
+				<div class="form-group row" id="formrow">
+					<label for="documentationDate" class="control-label col-md-3"><b>Completed return of results documentation date:&#160&#160</b></label>
+					<div class="col-md-3">
+						<input autocomplete="off" autofocus class="form-control" id="documentationDate" name="documentationDate" type="date" min="1970-01-01" max="2024-01-01" required>
+					</div>
+				</div>
+	
+				<div class="form-group row" id="formrow">
+					<label for="patientLetter" class="control-label col-md-3"><b>Patient letter sent?:&#160&#160</b></label>
+					<div class="col-md-9">
+						<select autocomplete="off" autofocus class="form-control" id="patientLetter" name="patientLetter" required>
+							<option value="" selected></option>
+							<option>Yes</option>
+							<option>No</option>
+							<option>Does not apply</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="form-group row" id="formrow">
+					<label for="familyLetter" class="control-label col-md-3"><b>Family letter(s) sent?:&#160&#160</b></label>
+					<div class="col-md-9">
+						<select autocomplete="off" autofocus class="form-control" id="familyLetter" name="familyLetter" required>
+							<option value="" selected></option>
+							<option>Yes</option>
+							<option>No</option>
+							<option>Does not apply</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="form-group row" id="formrow">
+					<label for="numFamLetter" class="control-label col-md-3"><b>Total family letters requested:&#160&#160</b></label>
+					<div class="col-md-3">
+						<input autocomplete="off" autofocus class="form-control" id="numFamLetter" name="numFamLetter" type="number" min="0" max="100" required>
+					</div>
+				</div>
+
+				<div class="form-group row" id="formrow">
+					<label for="providerLetter" class="control-label col-md-3"><b>Provider letter(s) sent?:&#160&#160</b></label>
+					<div class="col-md-9">
+						<select autocomplete="off" autofocus class="form-control" id="providerLetter" name="providerLetter" required>
+							<option value="" selected></option>
+							<option>Yes</option>
+							<option>No</option>
+							<option>Does not apply</option>
+						</select>
+					</div>
+				</div>
+				
+				<div class="form-group row" id="formrow">
+					<label for="numVAprovLetters" class="control-label col-md-3"><b>Total VA provider letters requested:&#160&#160</b></label>
+					<div class="col-md-3">
+						<input autocomplete="off" autofocus class="form-control" id="numVAprovLetters" name="numVAprovLetters" type="number" min="0" max="100" required>
+					</div>
+			
+					<label for="numNonVAprovLetters" class="control-label col-md-3"><b>Non-VA provider letters requested:&#160&#160</b></label>
+					<div class="col-md-3">
+						<input autocomplete="off" autofocus class="form-control" id="numNonVAprovLetters" name="numNonVAprovLetters" type="number" min="0" max="100" required>
+					</div>
+				</div>
+				
+				
+				<div class="alert alert-info" role="alert" id="provideralert" style="display: block;">
+				
+				<b>Reminder:</b>
+				Must have a VA Form 10-5345 on file to share study data with a <b>NON-VA</b> provider.
+				<br>
+				
+				</div>
+				
+				<div class="form-group row" id="formrow">
+					<label for="cprsNote" class="control-label col-md-3"><b>Note uploaded to CPRS?:&#160&#160</b></label>
+					<div class="col-md-9">
+						<select autocomplete="off" autofocus class="form-control" id="cprsNote" name="cprsNote" required>
+							<option value="" selected></option>
+							<option>Yes</option>
+							<option>No</option>
+							<option>Does not apply</option>
+						</select>
+					</div>
+				</div>
+		
+				<div class="form-group row" id="formrow">
+					<label for="notes" class="control-label col-md-3"><b>Notes:&#160&#160</b></label>
+					<div class="col-md-9">
+						<textarea autocomplete="off" autofocus class="form-control" rows="5" id="notes" name="notes"></textarea>
+					</div>
+				</div>
+				
+				<div class="form-group row" id="formrow">
+					<label for="timeSpent" class="control-label col-md-3"><b>Time spent (in minutes):&#160&#160</b></label>
+					<div class="col-md-9">
+						<input autocomplete="off" autofocus class="form-control" id="timeSpent" name="timeSpent" type="number" min="0" max="90" required>
+					</div>
+				</div>
+
+				<button type="submit" class="btn btn-primary btn-block" name="submitDocumentationID" value="{{ pt.roarid | safe }}">
+					<b>Submit Return of Results Intervention Documentation Data</b>
+				</button>	
+
+			</form>
+			
+		</div>
+
+	</div>
+
+
+		
+	<div class="col-lg-5">
+		
+		<div class="shadow p-3 mb-5 bg-white rounded">
+			
+			<!-- Demographic information section, patient tables -->
+
+			<b><u>DEMOGRAPHIC AND HEALTH INFORMATION</u></b>
+			<br>
+			<br>
+			<table class="table table-condensed table-hover" id="demTable">
+				<tbody>
+					<tr>
+						<th style="width: 35%">Name:</th>
+						<td>{{ pt.firstname | safe }} {{ pt.lastname | safe }}</td>
+					</tr>
+					<tr>
+						<th>MVP ROAR ID:</th>
+						<td> {{ pt.roarid | safe }} </td>
+					</tr>
+					<tr>
+						<th>MVP Core ID:</th>
+						<td> {{ pt.mvpcoreid | safe }} </td>
+					</tr>
+					<tr>
+						<th>DOB / Age:</th>
+						<td>  {{ pt.dob | safe }} / {{ ptAge | safe }} </td>
+					</tr>
+					<tr>
+						<th>Last 4 SSN:</th>
+						<td> {{ pt.ssn | safe }} </td>
+					</tr>
+					<tr>
+						<th>Sex:</th>
+						{% if pt.sexmale == True %}
+						<td> MALE </td>
+						{% else %}
+						<td> FEMALE </td>
+						{% endif %}						
+					</tr>
+					<tr>
+						<th>Race / Ethnicity:</th>
+						<td> {{ pt.race | safe }} / {{ pt.ethnicity | safe }} </td>
+					</tr>
+					<tr>
+						<th>Participant Group:</th>
+						{% if pt.pilotparticipant == True %}
+						<td> PILOT PARTICIPANT </td>
+						{% else %}
+						<td> RCT PARTICIPANT </td>
+						{% endif %}		
+					</tr>
+					<tr>
+						<th>Consent Status:</th>
+						{% if pt.consenteddate == None and pt.deceased == 1 %}
+						<td> NOT CONSENTED AND DECEASED </td>
+						{% elif pt.consenteddate == None and pt.eligible == 0 %}
+						<td> NOT CONSENTED AND NOT ELIGIBLE </td>
+						{% elif pt.declineddate != None and pt.eligible == 1 %}
+						<td> DECLINED / {{ pt.declineddate }}</td>
+						{% elif pt.consenteddate == None and pt.eligible == 1 %}
+						<td> NOT CONSENTED </td>
+						{% elif pt.consenteddate != None and pt.deceased == 1 %}
+						<td> CONSENTED / {{ pt.consenteddate }} AND DECEASED / {{ pt.deceaseddate }} </td>
+						{% elif pt.consenteddate != None and pt.withdrawn == 1 %}
+						<td> CONSENTED / {{ pt.consenteddate }} AND WITHDRAWN / {{ pt.withdrawndate }} </td>
+						{% elif pt.consenteddate != None and pt.eligible == 1 %}
+						<td> CONSENTED / {{ pt.consenteddate }}</td>
+						{% else %}
+						<td> PENDING </td>
+						{% endif %}		
+					</tr>
+					<tr>
+						<th>Randomization Status:</th>
+						{% if pt.randomizationstatus == None %}
+						<td> NOT RANDOMIZED </td>
+						{% else %}
+						<td> {{ pt.randomizationstatus }} / {{ pt.randomizationdate }} </td>
+						{% endif %}		
+					</tr>
+
+					<tr>
+						<th style="width: 40%">VA Station:</th>
+						<td>
+							{% if ptVA == None %}
+								PENDING
+							{% else %}
+								{{ ptVA.sta3nname | safe }}
+							{% endif %}
+						</td>
+					</tr>
+					
+					<tr>
+						<th>Providers:</th>
+						<td> 
+							{% if ptProv == [] %}
+								PENDING
+							{% else %}
+							{% for prov in ptProv %}
+								{{ prov.provider }} ({% if prov.vaprovider == True %} VA {% else %} Non-VA {% endif %}) <br>
+							{% endfor %}
+							{% endif %}
+						</td>
+					</tr>
+	
+					
+					{% for LDL in ptLDL %}
+					
+					{% if LDL.LDLtype == "maximum LDL" %}
+					<tr>
+						<th>Maximum LDL-C:</th>
+						<td>
+							{{ LDL.value | safe }} {{ LDL.unit | safe }} / {{ LDL.valuedate | safe }}
+						</td>	
+					</tr>
+					{% endif %}
+					
+					{% if LDL.LDLtype == "most recent LDL" %}
+					<tr>
+						<th>Most Recent LDL-C:</th>
+						<td>
+							{{ LDL.value | safe }} {{ LDL.unit | safe }} / {{ LDL.valuedate | safe }}
+						</td>	
+					</tr>	
+					{% endif %}	
+					
+					{% if LDL.LDLtype == "baseline LDL" %}							
+					<tr>
+						<th>Baseline LDL-C:</th>
+						<td>
+							{{ LDL.value | safe }} {{ LDL.unit | safe }} / {{ LDL.valuedate | safe }}
+						</td>	
+					</tr>		
+					{% endif %}
+					
+					{% if LDL.LDLtype == "end-of-study LDL" %}
+					<tr>
+						<th>End-of-Study LDL-C:</th>
+						<td>
+							{{ LDL.value | safe }} {{ LDL.unit | safe }} / {{ LDL.valuedate | safe }}
+						</td>	
+					</tr>
+					{% endif %}
+					
+					{% endfor %}	
+					
+					
+					<tr>
+						<th>cDot / rsID / axID:</th>
+						{% if ptGen == None %}
+						<td> PENDING </td>
+						{% else %}
+						<td> {{ ptGen.cdot | safe }} / {{ ptGen.rsID | safe }} / {{ ptGen.axID | safe }} </td>
+						{% endif %}						
+					</tr>
+					
+					
+					<tr>
+						<th>Confirmation testing:</th>
+						{% if ptGen.confirmtesting == 1 and ptGen.confirmresult == 0 %}
+						<td> Not Confirmed / {{ ptGen.confirmsource | safe }} / {{ ptGen.confirmtestingdate | safe }} </td>
+						{% elif ptGen.confirmtesting == 1 and ptGen.confirmresult == 1 %}
+						<td> Confirmed / {{ ptGen.confirmsource | safe }} / {{ ptGen.confirmtestingdate | safe }} </td>
+						{% else %}
+						<td> PENDING </td>
+						{% endif %}
+					</tr>	
+
+
+				</tbody>
+			</table>
+		
+		</div>
+		
+	</div>
+	
+	
+</div>
+
+
+{% endblock %}

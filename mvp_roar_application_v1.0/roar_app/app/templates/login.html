@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+
+<html>
+
+    <head>
+
+        <meta charset="utf-8" name="viewport" content="initial-scale=1, width=device-width">
+
+		<!-- http://getbootstrap.com/docs/4.5/ -->
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='bootstrap/css/bootstrap.min.css') }}">
+
+		<!-- Reference custom css -->
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/styles.css') }}">
+
+        <title>Login</title>
+
+    </head>
+
+    <body>
+		
+		<!-- http://getbootstrap.com/docs/4.5.3/components/navbar/ -->
+		<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+			<a class="navbar-brand mb-1 h1" href="/">MVP-ROAR APP</a>
+		</nav>
+
+        <!-- http://getbootstrap.com/docs/4.5.3/layout/overview/#containers -->
+
+        <main class="container-fluid p-5">
+            <h5 >
+                <div style="text-align:center"><b>User Login:</b></div>
+            </h5>
+
+
+		<form action="/" method="post" style="text-align:center">
+			<div class="container">
+			<br>
+			<br>
+    
+			<div class="form-inline justify-content-center">
+				<label for="username"><b>Username:&#160&#160</b></label>
+					<input type="text" class="form-control" placeholder="Username" name="username" value="{{ request.form.username }}">
+			</div>
+			<br>
+			<br>
+    
+			<div class="form-inline justify-content-center">
+				<label for="password"><b>Password:&#160&#160</b></label>
+					<input type="password" class="form-control" placeholder="Password" name="password" value="{{ request.form.password }}">
+			</div>
+			<br>
+			<br>
+				<input class="btn btn-primary btn-lg" type="submit" value="Login">
+			</div>
+		</form>
+
+		<br>
+		<br>
+		<div style="text-align:center">Contact: Charles.Brunette@va.gov</div>
+		
+		</main>
+
+        <footer class="fixed-bottom bg-dark">
+			<div class="text-center">
+				<p style="color:white;">-- Version 1 | VA CIRB 19-11 --</p>
+			</div>
+        </footer>
+
+    </body>
+
+</html>
