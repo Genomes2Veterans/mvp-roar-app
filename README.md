@@ -42,7 +42,7 @@ MVP-ROAR clinicaltrials.gov: https://clinicaltrials.gov/study/NCT04178122
 
 <h2>Application Setup</h2>
 
-**Note: A database will need to be instantiated and name included in connection strings noted above. Code will require manual updates of all database connection strings in scripts included in 'sql scripts' folder and app/database.py prior to below steps.**
+**Note: A database will need to be instantiated and name included in connection strings. Code will require manual updates of all database connection strings in scripts included in 'sql scripts' folder and app/database.py prior to below steps.**
 
 **Generate tables in SQL Server Database (should generate automatically with valid connection):**
 
