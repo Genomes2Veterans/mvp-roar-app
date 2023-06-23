@@ -52,11 +52,11 @@ note: An error may occur at this step due to Werkzeug package version - use pip 
 
 Check 127.0.0.1:8080 in browser to ensure local application start-up.
 
-![image](https://github.com/Genomes2Veterans/mvp-roar-app/assets/40616838/1f8f2872-81c8-4408-af98-6c0add58f6a1)
+![app](https://github.com/Genomes2Veterans/mvp-roar-app/assets/40616838/8225275c-3cff-44bb-b07f-fc8892b833c5)
 
-Check database that tables have beensuccessfully created.
+Check database that tables have been successfully created.
 
-![database_check](https://github.com/Genomes2Veterans/mvp-roar-app/assets/40616838/fe9ed527-2f76-4174-a550-de597e047e92)
+![database_check](https://github.com/Genomes2Veterans/mvp-roar-app/assets/40616838/b0e46094-c0ff-4b06-9f47-125ad9b97802)
 
 **Data for the following tables will need to be populated separately with relevant data:**
 - candidatePatient will require batch upload of potential participants from source.
@@ -64,7 +64,7 @@ Check database that tables have beensuccessfully created.
 - patientRandomization will require reference to a separate database table including pre-generated randomization statuses (see line 1505 in views.py)
 - sta3nDim will require addition of relevant facility information.
 - taskDim will require addition of relevant task information. (Task data for app v1.0)
-  ![image](https://github.com/Genomes2Veterans/mvp-roar-app/assets/40616838/9becd1ca-2285-4b14-9522-5106673db511)
+![taskDIm](https://github.com/Genomes2Veterans/mvp-roar-app/assets/40616838/ce4e95c3-c542-4061-9985-9bf3c9cd83e0)
 
 - medicationDim will require addition of relevant medication information.
 - variantDim will require addition of relevant genetic variant information.
