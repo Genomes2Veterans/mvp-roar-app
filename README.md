@@ -14,6 +14,12 @@ Application also tested using CentOS Stream environment and Microsoft SQL Server
 - https://www.centos.org/centos-stream/
 - https://learn.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker?view=sql-server-ver16&pivots=cs1-bash
 
+v1.0 of application requires prior installation of Microsoft ODBC Driver for SQL Server (v17)
+- https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-ver16
+
+Code included here is served locally with Python Waitress. Apache or other server/proxy requires additional setup, including web server gateway interface (wsgi).
+- https://flask.palletsprojects.com/en/2.0.x/deploying/
+
 MVP-ROAR clinicaltrials.gov: https://clinicaltrials.gov/study/NCT04178122
 
 ---
